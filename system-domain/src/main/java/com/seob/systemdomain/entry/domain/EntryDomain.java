@@ -12,13 +12,13 @@ public class EntryDomain {
 
     private Long id;
     private Long eventId;
-    private TicketDomain ticketDomain;
+    private Long ticketId;
     private LocalDateTime createdAt;
 
-    public static EntryDomain create(Long eventId, TicketDomain ticketDomain) {
+    public static EntryDomain create(Long eventId, Long ticketId) {
         EntryDomain entryDomain = new EntryDomain();
         entryDomain.eventId = eventId;
-        entryDomain.ticketDomain = ticketDomain;
+        entryDomain.ticketId = ticketId;
         entryDomain.createdAt = LocalDateTime.now();
         return entryDomain;
     }

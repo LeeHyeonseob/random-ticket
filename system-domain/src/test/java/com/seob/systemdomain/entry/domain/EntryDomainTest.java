@@ -1,7 +1,6 @@
 package com.seob.systemdomain.entry.domain;
 
-import com.seob.systemdomain.ticket.domain.TicketDomain;
-import com.seob.systemdomain.user.domain.vo.UserId;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,15 +14,15 @@ class EntryDomainTest {
     void createEntry() {
         //given
         Long eventId = 1L;
-        TicketDomain ticketDomain = TicketDomain.create(UserId.of("123"));
+        Long ticketId = 1L;
 
         //when
-        EntryDomain entryDomain = EntryDomain.create(eventId, ticketDomain);
+        EntryDomain entryDomain = EntryDomain.create(eventId, ticketId);
 
         //then
         assertThat(entryDomain).isNotNull();
         assertThat(entryDomain.getEventId()).isEqualTo(eventId);
-        assertThat(entryDomain.getTicketDomain()).isEqualTo(ticketDomain);
+        assertThat(entryDomain.getTicketId()).isEqualTo(ticketId);
         assertThat(entryDomain.getCreatedAt()).isNotNull();
     }
 }
