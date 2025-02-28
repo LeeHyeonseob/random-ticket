@@ -5,9 +5,11 @@ import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 @RequiredArgsConstructor
 public class TicketRepositoryImpl implements TicketRepository {
 
