@@ -2,13 +2,14 @@ package com.seob.systemdomain.ticket.domain;
 
 import com.seob.systemdomain.ticket.exception.AlreadyUsedTicketException;
 import com.seob.systemdomain.user.domain.vo.UserId;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TicketDomain {
 
     private Long id;
@@ -25,6 +26,11 @@ public class TicketDomain {
         ticketDomain.userId = userId;
         ticketDomain.createdAt = LocalDateTime.now();
         ticketDomain.isUsed = false;
+        return ticketDomain;
+    }
+
+    public static TicketDomain of(Long id, UserId userId, LocalDateTime createdAt, Boolean isUsed) {
+        TicketDomain ticketDomain = new TicketDomain();
         return ticketDomain;
     }
 
