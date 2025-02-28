@@ -17,7 +17,10 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(400, "U004", "Password does not match"),
 
     // 티켓 관련 에러
-    TICKET_ALREADY_USED(400, "T001", "Ticket has already been used");
+    TICKET_ALREADY_USED(400, "T001", "Ticket has already been used"),
+
+    //이벤트 관련 에러
+    EVENT_NOT_FOUND(404,"E001","Event not found");
 
     private final int status;
     private final String code;

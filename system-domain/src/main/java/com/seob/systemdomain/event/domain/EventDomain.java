@@ -25,6 +25,17 @@ public class EventDomain {
         return eventDomain;
     }
 
+    public static EventDomain of(String name, String description, EventStatus status, LocalDateTime createdAt){
+        EventDomain eventDomain = new EventDomain();
+        eventDomain.name = name;
+        eventDomain.description = description;
+        eventDomain.status = status;
+        eventDomain.createdAt = createdAt;
+        return eventDomain;
+    }
+
+
+
     public boolean canApply(){
         return status == EventStatus.OPEN;
     }

@@ -19,7 +19,7 @@ public class UserDomain {
 
     private UserRole role;
 
-    private Boolean active;
+    private boolean active;
 
 
 
@@ -30,6 +30,17 @@ public class UserDomain {
         user.password = Password.encode(password,passwordEncoder);
         user.role = UserRole.USER;
         user.active = false;
+
+        return user;
+    }
+
+    public static UserDomain of(String userid, String email, String encodedPassword, UserRole role, boolean active){
+        UserDomain user = new UserDomain();
+        user.userId = new UserId(userid);
+        user.email = Email.from(email);
+        user.password = Password.of(encodedPassword);
+        user.role = role;
+        user.active = active;
 
         return user;
     }
@@ -60,10 +71,6 @@ public class UserDomain {
         this.active = true;
     }
 
-    //활성화 여부
-    public boolean isActive(){
-        return active;
-    }
 
 
 
