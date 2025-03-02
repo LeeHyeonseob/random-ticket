@@ -1,4 +1,4 @@
-package com.seob.api.exception;
+package com.seob.application.exception;
 
 
 import com.seob.systemcore.error.ErrorCode;
