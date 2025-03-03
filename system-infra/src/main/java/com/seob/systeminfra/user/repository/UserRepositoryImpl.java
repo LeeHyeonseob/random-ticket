@@ -1,6 +1,6 @@
-package com.seob.insystemavailable.user.repository;
+package com.seob.systeminfra.user.repository;
 
-import com.seob.insystemavailable.user.entity.UserEntity;
+import com.seob.systeminfra.user.entity.UserEntity;
 import com.seob.systemdomain.user.domain.UserDomain;
 import com.seob.systemdomain.user.domain.vo.Email;
 import com.seob.systemdomain.user.repository.UserRepository;
