@@ -18,10 +18,13 @@ public enum ErrorCode {
 
     // 티켓 관련 에러
     TICKET_ALREADY_USED(400, "T001", "Ticket has already been used"),
+    DUPLICATED_TICKET(400, "T002", "Duplicated ticket"),
 
     //이벤트 관련 에러
-    EVENT_NOT_FOUND(404,"E001","Event not found");
+    EVENT_NOT_FOUND(404,"E001","Event not found"),
 
+    //레디스 관련 에러
+    REDIS_PUBLISH_ERROR(500, "R001", "Failed to publish to Redis stream");
     private final int status;
     private final String code;
     private final String message;
