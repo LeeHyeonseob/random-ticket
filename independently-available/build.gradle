@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation project(':system-domain')
-    implementation project(':in-system-available')
+    implementation project(':system-infra')
 
 
     implementation 'org.springframework.boot:spring-boot-starter-batch'
