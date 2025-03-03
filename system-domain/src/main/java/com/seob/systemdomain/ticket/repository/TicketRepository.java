@@ -9,6 +9,8 @@ public interface TicketRepository {
 
     TicketDomain save(TicketDomain ticketDomain);
 
+    Optional<TicketDomain> findById(Long id);
+
     Optional<TicketDomain> findByUserId(UserId userId);
 
     boolean existsByUserId(UserId userId); //이미 있는지 확인용
