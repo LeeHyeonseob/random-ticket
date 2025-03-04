@@ -3,6 +3,7 @@ package com.seob.application.ticket.service;
 
 import com.seob.application.ticket.exception.DuplicateIssueTicketException;
 import com.seob.application.ticket.exception.PublishFailureException;
+import com.seob.application.ticket.exception.TicketExhaustedException;
 import com.seob.application.ticket.redis.TicketPublisher;
 import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.service.TicketService;
@@ -20,6 +21,11 @@ public class RedisTicketService implements TicketService {
 
     //중복 발급 체크용 set key
     private static final String TICKET_ISSUED_SET = "issued_tickets";
+    // 티켓 카운터 key
+    private static final String TICKET_COUNTER_KEY = "ticket_counter";
+    // 발급 가능한 최대 티켓 수
+    private static final int MAX_TICKETS = 100;
+
 
 
     @Override
@@ -32,6 +38,17 @@ public class RedisTicketService implements TicketService {
             // 중복 발급시 예외 처리
             throw DuplicateIssueTicketException.EXCEPTION;
         }
+
+        // 티켓 수량 확인 및 증가
+        Long currentCount = redisTemplate.opsForValue().increment(TICKET_COUNTER_KEY);
+
+        //발급 가능 수량 초과시 롤백
+        if( currentCount > MAX_TICKETS ) {
+            redisTemplate.opsForValue().decrement(TICKET_COUNTER_KEY,1);
+            redisTemplate.opsForSet().remove(TICKET_ISSUED_SET, userKey);
+            throw TicketExhaustedException.EXCEPTION;
+        }
+
 
         TicketDomain ticket = TicketDomain.create(userId);
 
