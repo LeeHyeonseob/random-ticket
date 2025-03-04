@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,12 +25,15 @@ public class EventEntity {
     @Enumerated(EnumType.STRING)
     private EventStatus status;
 
+    private LocalDate eventDate;
+
     private LocalDateTime createdAt;
 
-    public EventEntity(String name, String description, EventStatus status, LocalDateTime createdAt) {
+    public EventEntity(String name, String description, EventStatus status, LocalDate eventDate, LocalDateTime createdAt) {
         this.name = name;
         this.description = description;
         this.status = status;
+        this.eventDate = eventDate;
         this.createdAt = createdAt;
 
     }

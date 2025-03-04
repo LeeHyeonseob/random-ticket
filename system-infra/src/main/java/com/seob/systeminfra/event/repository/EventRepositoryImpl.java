@@ -8,6 +8,8 @@ import com.seob.systemdomain.event.vo.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class EventRepositoryImpl implements EventRepository {
@@ -29,6 +31,13 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
+    public List<EventDomain> findAll() {
+        return eventJpaRepository.findAll().stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
     public EventStatus findStatusById(Long id) {
         return eventJpaRepository.findStatusById(id);
     }
@@ -39,6 +48,7 @@ public class EventRepositoryImpl implements EventRepository {
                 eventDomain.getName(),
                 eventDomain.getDescription(),
                 eventDomain.getStatus(),
+                eventDomain.getEventDate(),
                 eventDomain.getCreatedAt()
         );
     }
@@ -48,6 +58,7 @@ public class EventRepositoryImpl implements EventRepository {
                 eventEntity.getName(),
                 eventEntity.getDescription(),
                 eventEntity.getStatus(),
+                eventEntity.getEventDate(),
                 eventEntity.getCreatedAt()
         );
     }
