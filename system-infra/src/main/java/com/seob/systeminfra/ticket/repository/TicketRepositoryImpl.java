@@ -44,6 +44,7 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     private TicketEntity toEntity(TicketDomain domain) {
         return new TicketEntity(
+                domain.getId().getValue(),
                 domain.getUserId().getValue(),
                 domain.getCreatedAt(),
                 domain.isUsed()

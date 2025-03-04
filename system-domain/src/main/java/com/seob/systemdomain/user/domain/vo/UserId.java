@@ -1,16 +1,12 @@
 package com.seob.systemdomain.user.domain.vo;
 
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 @Value
-@Getter
-@EqualsAndHashCode
 public class UserId implements Serializable {
 
     private String value;

@@ -20,11 +20,11 @@ public class EntryEntity {
 
     private Long eventId;
 
-    private Long ticketId;
+    private String ticketId;
 
     private LocalDateTime createdAt;
 
-    public EntryEntity(String userId, Long eventId, Long ticketId, LocalDateTime createdAt) {
+    public EntryEntity(String userId, Long eventId, String ticketId, LocalDateTime createdAt) {
         this.userId = userId;
         this.eventId = eventId;
         this.ticketId = ticketId;

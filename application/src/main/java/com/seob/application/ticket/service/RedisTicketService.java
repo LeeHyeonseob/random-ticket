@@ -38,6 +38,10 @@ public class RedisTicketService implements TicketService {
         try {
             ticketPublisher.publish(ticket);
         } catch (Exception e) {
+            // 실제 예외 정보 로깅
+            System.err.println("Publishing error: " + e.getMessage());
+            e.printStackTrace();
+
             // publish 실패 시 Set에서 제거
             redisTemplate.opsForSet().remove(TICKET_ISSUED_SET, userKey);
             // publish 예외 발생 처리

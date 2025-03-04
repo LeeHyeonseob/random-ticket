@@ -1,6 +1,7 @@
 package com.seob.systemdomain.entry.domain;
 
 import com.seob.systemdomain.ticket.domain.TicketDomain;
+import com.seob.systemdomain.ticket.domain.vo.TicketId;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,10 +15,10 @@ public class EntryDomain {
     private Long id;
     private UserId userId;
     private Long eventId;
-    private Long ticketId;
+    private String ticketId;
     private LocalDateTime createdAt;
 
-    public static EntryDomain create(UserId userId, Long eventId, Long ticketId) {
+    public static EntryDomain create(UserId userId, Long eventId, String ticketId) {
         EntryDomain entryDomain = new EntryDomain();
         entryDomain.userId = userId;
         entryDomain.eventId = eventId;
@@ -26,7 +27,7 @@ public class EntryDomain {
         return entryDomain;
     }
 
-    public static EntryDomain of(Long id, String userId, Long eventId, Long ticketId, LocalDateTime createdAt) {
+    public static EntryDomain of(Long id, String userId, Long eventId, String ticketId, LocalDateTime createdAt) {
         EntryDomain entryDomain = new EntryDomain();
         entryDomain.id = id;
         entryDomain.userId = UserId.of(userId);

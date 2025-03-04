@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 public class TicketEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String userId;
@@ -26,7 +26,8 @@ public class TicketEntity {
     private boolean isUsed;
 
 
-    public TicketEntity(String userId, LocalDateTime createdAt, boolean isUsed) {
+    public TicketEntity(String id, String userId, LocalDateTime createdAt, boolean isUsed) {
+        this.id = id;
         this.userId = userId;
         this.createdAt = createdAt;
         this.isUsed = isUsed;

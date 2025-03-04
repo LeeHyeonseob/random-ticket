@@ -6,6 +6,7 @@ import com.seob.systeminfra.ticket.consumer.TicketConsumer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,22 +32,23 @@ public class RedisConfig {
     }
 
     @Bean
-    public StreamMessageListenerContainer<String, ObjectRecord<String, TicketDomain>> ticketStreamListenerContainer(
+    public StreamMessageListenerContainer<String, MapRecord<String, String, String>> ticketStreamListenerContainer(
             RedisConnectionFactory connectionFactory,
             TicketConsumer ticketConsumer) {
 
-        StreamMessageListenerContainer.StreamMessageListenerContainerOptions<String, ObjectRecord<String, TicketDomain>> options =
+        StreamMessageListenerContainer.StreamMessageListenerContainerOptions<String, MapRecord<String, String, String>> options =
                 StreamMessageListenerContainer.StreamMessageListenerContainerOptions
                         .builder()
                         .pollTimeout(Duration.ofMillis(100))
-                        .targetType(TicketDomain.class)
                         .build();
 
-        StreamMessageListenerContainer<String, ObjectRecord<String, TicketDomain>> container =
+        StreamMessageListenerContainer<String, MapRecord<String, String, String>> container =
                 StreamMessageListenerContainer.create(connectionFactory, options);
 
-        container.receive(StreamOffset.fromStart("ticket_stream"), ticketConsumer);
+        container.receive(StreamOffset.latest("ticket_stream"), ticketConsumer);
         container.start();
         return container;
     }
+
+
 }
