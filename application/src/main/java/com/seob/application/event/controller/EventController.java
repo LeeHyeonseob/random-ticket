@@ -1,10 +1,11 @@
 package com.seob.application.event.controller;
 
 import com.seob.application.event.controller.dto.CreateEventRequest;
+import com.seob.application.event.controller.dto.EventClientResponse;
 import com.seob.application.event.controller.dto.EventResponse;
 import com.seob.systemdomain.event.domain.EventDomain;
+import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systemdomain.event.service.EventService;
-import com.seob.systemdomain.event.vo.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,20 +44,20 @@ public class EventController {
 
     //단일 이벤트 조회
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getEvent(@PathVariable Long eventId) {
-        EventDomain eventDomain = eventService.findById(eventId);
-        return ResponseEntity.ok(EventResponse.of(eventDomain));
+    public ResponseEntity<EventClientResponse> getEvent(@PathVariable Long eventId) {
+        EventDisplayInfo eventDisplayInfo = eventService.getEventDisplayInfo(eventId);
+        return ResponseEntity.ok(EventClientResponse.of(eventDisplayInfo));
     }
 
     //전체 이벤트 조회 -> 나중에 페이징 개선
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAllEvents() {
-        List<EventDomain> events = eventService.findAll();
-        List<EventResponse> eventResponses = events.stream()
-                .map(EventResponse::of)
+    public ResponseEntity<List<EventClientResponse>> getAllEvents() {
+        List<EventDisplayInfo> eventDisplayInfos = eventService.getEventDisplayInfoList();
+        List<EventClientResponse> eventClientResponses = eventDisplayInfos.stream()
+                .map(EventClientResponse::of)
                 .toList();
 
-        return ResponseEntity.ok(eventResponses);
+        return ResponseEntity.ok(eventClientResponses);
     }
 
 

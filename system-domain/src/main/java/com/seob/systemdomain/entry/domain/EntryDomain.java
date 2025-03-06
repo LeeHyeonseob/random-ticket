@@ -1,7 +1,6 @@
 package com.seob.systemdomain.entry.domain;
 
-import com.seob.systemdomain.ticket.domain.TicketDomain;
-import com.seob.systemdomain.ticket.domain.vo.TicketId;
+
 import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
