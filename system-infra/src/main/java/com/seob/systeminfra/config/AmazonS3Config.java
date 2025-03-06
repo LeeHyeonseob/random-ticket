@@ -11,22 +11,19 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Configuration
 public class AmazonS3Config {
 
-    @Value("${aws.credentials.access-key}")
+    @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
 
-    @Value("${aws.credentials.secret-key}")
+    @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
 
-    @Value("${aws.s3.bucket-name}")
-    private String bucketName;
-
-    @Value("${aws.s3.region}")
-    private String region; // 환경변수로 리전 설정
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-                .region(Region.of(region)) // 환경변수에서 리전 가져오기
+                .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)))
                 .build();

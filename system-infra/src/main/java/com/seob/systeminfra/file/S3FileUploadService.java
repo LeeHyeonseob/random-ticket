@@ -18,7 +18,7 @@ public class S3FileUploadService implements FileUploadService {
     private final S3Client s3Client;
     private final String bucketName;
 
-    public S3FileUploadService(S3Client s3Client, @Value("${aws.s3.bucket-name}") String bucketName) {
+    public S3FileUploadService(S3Client s3Client, @Value("${cloud.aws.s3.bucket-name}") String bucketName) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
     }
