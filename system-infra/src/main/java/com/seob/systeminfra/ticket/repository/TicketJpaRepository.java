@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface TicketJpaRepository extends JpaRepository<TicketEntity, Long> {
     Optional<TicketEntity> findByUserId(String userId);
 
-    Optional<TicketEntity> findByTicketId(String ticketId);
+    Optional<TicketEntity> findById(String id);
     boolean existsByUserId(String userId);
 }
