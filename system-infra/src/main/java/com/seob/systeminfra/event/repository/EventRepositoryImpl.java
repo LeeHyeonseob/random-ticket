@@ -1,6 +1,10 @@
 package com.seob.systeminfra.event.repository;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systeminfra.event.entity.EventEntity;
+import com.seob.systeminfra.event.entity.QEventEntity;
 import com.seob.systeminfra.event.exception.EventNotFoundException;
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
@@ -15,6 +19,7 @@ import java.util.List;
 public class EventRepositoryImpl implements EventRepository {
 
     private final EventJpaRepository eventJpaRepository;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public EventDomain save(EventDomain eventDomain) {
@@ -41,6 +46,37 @@ public class EventRepositoryImpl implements EventRepository {
     public EventStatus findStatusById(Long id) {
         return eventJpaRepository.findStatusById(id);
     }
+
+    @Override
+    public EventDisplayInfo findDisplayInfoById(Long id) {
+        QEventEntity event = QEventEntity.eventEntity;
+
+        return queryFactory
+                .select(Projections.constructor(EventDisplayInfo.class,
+                        event.name,
+                        event.description,
+                        event.status.stringValue(), // Enum -> String으로 변환 name 안됨
+                        event.eventDate))
+                .from(event)
+                .where(event.id.eq(id))
+                .fetchOne();
+    }
+
+    @Override
+    public List<EventDisplayInfo> findAllDisplayInfo() {
+        QEventEntity event = QEventEntity.eventEntity;
+
+        return queryFactory
+                .select(Projections.constructor(EventDisplayInfo.class,
+                        event.name,
+                        event.description,
+                        event.status.stringValue(),
+                        event.eventDate))
+                .from(event)
+                .fetch(); //
+    }
+
+
 
     EventEntity toEntity(EventDomain eventDomain) {
 

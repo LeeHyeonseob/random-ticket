@@ -1,6 +1,8 @@
 package com.seob.application.event.service;
 
+import com.seob.application.event.exception.InvalidEventStatusException;
 import com.seob.systemdomain.event.domain.EventDomain;
+import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.event.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
+
 
     @Override
     public EventDomain createEvent(String name, String description, LocalDate eventDate) {
@@ -39,15 +42,27 @@ public class EventServiceImpl implements EventService {
     public EventDomain changeStatus(Long eventId, String eventStatus) {
         EventDomain findEvent = findById(eventId);
 
-        switch (eventStatus) {
-            case "OPEN":
+        return switch (eventStatus) {
+            case "OPEN" -> {
                 findEvent.openEvent();
-                return eventRepository.save(findEvent);
-            case "CLOSED":
+                yield eventRepository.save(findEvent);
+            }
+            case "CLOSED" -> {
                 findEvent.closeEvent();
-                return eventRepository.save(findEvent);
+                yield eventRepository.save(findEvent);
+            }
+            default -> throw InvalidEventStatusException.EXCEPTION;
+        };
+    }
 
-        }
-        return findEvent;
+    @Override
+    @Transactional(readOnly = true)
+    public EventDisplayInfo getEventDisplayInfo(Long eventId) {
+        return eventRepository.findDisplayInfoById(eventId);
+    }
+
+    @Override
+    public List<EventDisplayInfo> getEventDisplayInfoList() {
+        return eventRepository.findAllDisplayInfo();
     }
 }
