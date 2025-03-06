@@ -1,5 +1,6 @@
 package com.seob.systeminfra.ticket.repository;
 
+import com.seob.systemdomain.ticket.domain.vo.TicketId;
 import com.seob.systeminfra.ticket.entity.TicketEntity;
 import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.repository.TicketRepository;
@@ -23,8 +24,8 @@ public class TicketRepositoryImpl implements TicketRepository {
     }
 
     @Override
-    public Optional<TicketDomain> findById(Long id) {
-        return ticketJpaRepository.findById(id).map(this::toDomain);
+    public Optional<TicketDomain> findById(TicketId id) {
+        return ticketJpaRepository.findByTicketId(id.getValue()).map(this::toDomain);
     }
 
     @Override
