@@ -1,5 +1,6 @@
 package com.seob.systeminfra.user.repository;
 
+import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systeminfra.user.entity.UserEntity;
 import com.seob.systemdomain.user.domain.UserDomain;
 import com.seob.systemdomain.user.domain.vo.Email;
@@ -15,6 +16,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final UserJpaRepository userJpaRepository;
 
+
+    @Override
+    public Optional<UserDomain> findById(UserId userId) {
+        Optional<UserEntity> userEntity = userJpaRepository.findById(userId.getValue());
+        return userEntity.map(this::toDomain);
+    }
 
     @Override
     public UserDomain save(UserDomain userDomain) {
@@ -38,6 +45,7 @@ public class UserRepositoryImpl implements UserRepository {
         return new UserEntity(
                 userDomain.getUserId().getValue(),
                 userDomain.getEmail().getValue(),
+                userDomain.getNickname().getValue(),
                 userDomain.getPassword().getEncodedValue(),
                 userDomain.getRole(),
                 userDomain.isActive()
@@ -48,6 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
         return UserDomain.of(
                 userEntity.getUserId(),
                 userEntity.getEmail(),
+                userEntity.getNickname(),
                 userEntity.getPassword(),
                 userEntity.getRole(),
                 userEntity.isActive()

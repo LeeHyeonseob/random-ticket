@@ -1,9 +1,6 @@
 package com.seob.systemdomain.user.domain;
 
-import com.seob.systemdomain.user.domain.vo.Email;
-import com.seob.systemdomain.user.domain.vo.Password;
-import com.seob.systemdomain.user.domain.vo.UserId;
-import com.seob.systemdomain.user.domain.vo.UserRole;
+import com.seob.systemdomain.user.domain.vo.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +12,8 @@ public class UserDomain {
 
     private Email email;
 
+    private Nickname nickname;
+
     private Password password;
 
     private UserRole role;
@@ -23,10 +22,11 @@ public class UserDomain {
 
 
 
-    public static UserDomain create(String email, String password, PasswordEncoder passwordEncoder){
+    public static UserDomain create(String email, String nickname, String password, PasswordEncoder passwordEncoder){
         UserDomain user = new UserDomain();
         user.userId = UserId.create();
         user.email = Email.from(email);
+        user.nickname = Nickname.of(nickname);
         user.password = Password.encode(password,passwordEncoder);
         user.role = UserRole.USER;
         user.active = false;
@@ -34,10 +34,11 @@ public class UserDomain {
         return user;
     }
 
-    public static UserDomain of(String userid, String email, String encodedPassword, UserRole role, boolean active){
+    public static UserDomain of(String userid, String email, String nickname, String encodedPassword, UserRole role, boolean active){
         UserDomain user = new UserDomain();
         user.userId = new UserId(userid);
         user.email = Email.from(email);
+        user.nickname = Nickname.of(nickname);
         user.password = Password.of(encodedPassword);
         user.role = role;
         user.active = active;
@@ -48,6 +49,14 @@ public class UserDomain {
     public void changePassword(String oldPassword, String newPassword, PasswordEncoder passwordEncoder){
         password.matches(oldPassword,passwordEncoder);
         password = Password.encode(newPassword,passwordEncoder);
+    }
+
+    public void changeEmail(String newEmail){
+        email = Email.from(newEmail);
+    }
+
+    public void changeNickname(String newNickname){
+        nickname = Nickname.of(newNickname);
     }
 
     //관리자전환

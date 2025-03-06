@@ -18,6 +18,8 @@ public class UserEntity {
 
     private String email;
 
+    private String nickname;
+
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -26,9 +28,10 @@ public class UserEntity {
     @Setter(AccessLevel.NONE)
     private boolean active;
 
-    public UserEntity (String userId, String email, String password, UserRole role, boolean active) {
+    public UserEntity (String userId, String email, String nickname, String password, UserRole role, boolean active) {
         this.userId = userId;
         this.email = email;
+        this.nickname = nickname;
         this.password = password;
         this.role = role;
         this.active = active;
