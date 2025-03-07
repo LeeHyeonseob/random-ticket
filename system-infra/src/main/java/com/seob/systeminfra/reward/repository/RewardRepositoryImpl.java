@@ -1,5 +1,9 @@
 package com.seob.systeminfra.reward.repository;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.seob.systemdomain.reward.dto.RewardPreview;
+import com.seob.systeminfra.reward.entity.QRewardEntity;
 import com.seob.systeminfra.reward.entity.RewardEntity;
 import com.seob.systemdomain.reward.domain.RewardDomain;
 import com.seob.systemdomain.reward.repository.RewardRepository;
@@ -13,6 +17,8 @@ import java.util.Optional;
 public class RewardRepositoryImpl implements RewardRepository {
 
     private final RewardJpaRepository rewardJpaRepository;
+
+
     @Override
     public RewardDomain save(RewardDomain rewardDomain) {
         RewardEntity rewardEntity = toEntity(rewardDomain);

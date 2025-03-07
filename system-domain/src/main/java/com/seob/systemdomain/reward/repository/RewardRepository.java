@@ -1,6 +1,7 @@
 package com.seob.systemdomain.reward.repository;
 
 import com.seob.systemdomain.reward.domain.RewardDomain;
+import com.seob.systemdomain.reward.dto.RewardPreview;
 
 import java.util.Optional;
 

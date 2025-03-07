@@ -1,5 +1,6 @@
 package com.seob.application.reward.service;
 
+import com.seob.application.reward.exception.RewardNotFoundException;
 import com.seob.systemdomain.reward.domain.RewardDomain;
 import com.seob.systemdomain.reward.dto.RewardPreview;
 import com.seob.systemdomain.reward.repository.RewardRepository;
@@ -25,7 +26,7 @@ public class RewardServiceImpl implements RewardService {
     }
 
     @Override
-    public RewardPreview getRewardPreviewByEventId(Long eventId) {
-        return null;
+    public RewardDomain getRewardByEventId(Long eventId) {
+        return rewardRepository.findById(eventId).orElseThrow(() -> RewardNotFoundException.EXCEPTION);
     }
 }

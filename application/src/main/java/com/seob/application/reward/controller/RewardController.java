@@ -17,7 +17,7 @@ public class RewardController {
 
     // 보상 등록
     @PostMapping
-    public ResponseEntity<?> registerReward(@RequestBody RegisterRewardRequest request){
+    public ResponseEntity<RewardResponse> registerReward(@RequestBody RegisterRewardRequest request){
         RewardDomain rewardDomain = rewardService.createReward(
                 request.eventId(),
                 request.rewardUrl()
@@ -28,7 +28,11 @@ public class RewardController {
 
 
     //사용자 이벤트 보상 미리보기 조회
-
+    @GetMapping("/events/{eventId}")
+    public ResponseEntity<RewardResponse> getRewardByEventId(@PathVariable Long eventId){
+        RewardDomain rewardDomain = rewardService.getRewardByEventId(eventId);
+        return ResponseEntity.ok(RewardResponse.of(rewardDomain));
+    }
 
 
 
