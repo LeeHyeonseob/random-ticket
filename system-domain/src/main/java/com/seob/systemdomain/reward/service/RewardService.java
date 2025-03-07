@@ -1,7 +1,7 @@
 package com.seob.systemdomain.reward.service;
 
 import com.seob.systemdomain.reward.domain.RewardDomain;
-import com.seob.systemdomain.reward.dto.RewardPreview;
+
 
 public interface RewardService {
     RewardDomain createReward(Long eventId, String resourceUrl);

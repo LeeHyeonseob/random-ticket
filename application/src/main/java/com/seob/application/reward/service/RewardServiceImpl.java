@@ -2,7 +2,6 @@ package com.seob.application.reward.service;
 
 import com.seob.application.reward.exception.RewardNotFoundException;
 import com.seob.systemdomain.reward.domain.RewardDomain;
-import com.seob.systemdomain.reward.dto.RewardPreview;
 import com.seob.systemdomain.reward.repository.RewardRepository;
 import com.seob.systemdomain.reward.service.RewardService;
 import lombok.RequiredArgsConstructor;
