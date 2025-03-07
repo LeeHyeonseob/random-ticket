@@ -5,6 +5,8 @@ import com.seob.application.entry.exception.EventNotOpendExcpetion;
 import com.seob.application.ticket.exception.TicketNotFoundException;
 import com.seob.application.user.exception.UserNotFoundException;
 import com.seob.systemdomain.entry.domain.EntryDomain;
+import com.seob.systemdomain.entry.dto.ParticipantInfo;
+import com.seob.systemdomain.entry.dto.UserEventInfo;
 import com.seob.systemdomain.entry.repository.EntryRepository;
 import com.seob.systemdomain.entry.service.EntryService;
 import com.seob.systemdomain.event.domain.EventDomain;
@@ -65,7 +67,6 @@ public class EntryServiceImpl implements EntryService {
     }
 
 
-
     @Override
     @Transactional(readOnly = true)
     public List<EntryDomain> findByEventId(Long eventId) {
@@ -81,11 +82,22 @@ public class EntryServiceImpl implements EntryService {
         return entryRepository.findByUserId(userId);
     }
 
+
     @Override
-    public List<String> findUserIdByEventId(Long eventId) {
-        return entryRepository.findUserIdByEventId(eventId);
+    @Transactional(readOnly = true)
+    public List<ParticipantInfo> findParticipantDetailsByEventId(Long eventId) {
+        return entryRepository.findParticipantDetailsByEventId(eventId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserEventInfo> findUserEventInfoByUserId(String userId) {
+        // 사용자 존재 확인
+        getUser(userId);
+        return entryRepository.findUserEventInfoByUserId(userId);
+    }
+
+    //내부 메서드
 
     private UserDomain getUser(String userId) {
         return userRepository.findById(UserId.of(userId)).orElseThrow(() -> UserNotFoundException.EXCEPTION);

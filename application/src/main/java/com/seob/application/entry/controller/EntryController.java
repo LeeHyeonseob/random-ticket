@@ -2,8 +2,7 @@ package com.seob.application.entry.controller;
 
 import com.seob.application.entry.controller.dto.EntryCreateRequest;
 import com.seob.application.entry.controller.dto.EntryResponse;
-import com.seob.application.entry.service.EventEntryFacadeService;
-import com.seob.application.entry.service.UserEntryFacadeService;
+import com.seob.application.entry.service.EntryApplicationService;
 import com.seob.application.entry.service.dto.EventEntryResponse;
 import com.seob.application.entry.service.dto.UserEntryResponse;
 import com.seob.systemdomain.entry.domain.EntryDomain;
@@ -20,8 +19,7 @@ import java.util.List;
 public class EntryController {
 
     private final EntryService entryService;
-    private final EventEntryFacadeService eventEntryFacadeService;
-    private final UserEntryFacadeService userEntryFacadeService;
+    private final EntryApplicationService entryApplicationService;
 
     //이벤트 참여
     @PostMapping
@@ -35,14 +33,14 @@ public class EntryController {
     //사용자
     @GetMapping("/events/{eventId}")
     public ResponseEntity<EventEntryResponse> getEntriesByEventId(@PathVariable("eventId") Long eventId) {
-        EventEntryResponse response = eventEntryFacadeService.getEventWithParticipants(eventId);
+        EventEntryResponse response = entryApplicationService.getEventWithParticipants(eventId);
         return ResponseEntity.ok(response);
     }
 
     // 사용자의 이벤트 참가 내역 조회
     @GetMapping("/users/{userId}")
     public ResponseEntity<List<UserEntryResponse>> getEntriesByUserId(@PathVariable String userId) {
-        List<UserEntryResponse> responses = userEntryFacadeService.getUserEntries(userId);
+        List<UserEntryResponse> responses = entryApplicationService.getUserEntries(userId);
         return ResponseEntity.ok(responses);
     }
 }

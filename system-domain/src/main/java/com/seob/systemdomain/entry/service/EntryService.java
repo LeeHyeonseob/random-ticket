@@ -1,6 +1,8 @@
 package com.seob.systemdomain.entry.service;
 
 import com.seob.systemdomain.entry.domain.EntryDomain;
+import com.seob.systemdomain.entry.dto.ParticipantInfo;
+import com.seob.systemdomain.entry.dto.UserEventInfo;
 
 
 import java.util.List;
@@ -13,5 +15,8 @@ public interface EntryService {
 
     List<EntryDomain> findByUserId(String userId);
 
-    List<String> findUserIdByEventId(Long eventId);
+    List<ParticipantInfo> findParticipantDetailsByEventId(Long eventId);
+
+    List<UserEventInfo> findUserEventInfoByUserId(String userId);
+
 }
