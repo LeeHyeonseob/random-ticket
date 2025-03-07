@@ -24,7 +24,7 @@ public class WinnerDomain {
 
     private LocalDateTime sentAt;
 
-    public WinnerDomain create(UserId userId, Long eventId, Long rewardId) {
+    public static WinnerDomain create(UserId userId, Long eventId, Long rewardId) {
         WinnerDomain winnerDomain = new WinnerDomain();
         winnerDomain.userId = userId;
         winnerDomain.eventId = eventId;
