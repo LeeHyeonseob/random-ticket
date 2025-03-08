@@ -1,4 +1,4 @@
-package com.seob.application.ticket.redis;
+package com.seob.systeminfra.ticket.redis;
 
 import com.seob.systemdomain.ticket.domain.TicketDomain;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,7 +1,8 @@
-package com.seob.application.ticket.exception;
+package com.seob.systeminfra.ticket.exception;
 
-import com.seob.application.exception.RedisException;
+
 import com.seob.systemcore.error.ErrorCode;
+import com.seob.systeminfra.exception.RedisException;
 
 public class PublishFailureException extends RedisException {
 

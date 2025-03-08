@@ -1,10 +1,11 @@
-package com.seob.application.ticket.service;
+package com.seob.systeminfra.ticket.service;
 
 
-import com.seob.application.ticket.exception.DuplicateIssueTicketException;
-import com.seob.application.ticket.exception.PublishFailureException;
-import com.seob.application.ticket.exception.TicketExhaustedException;
-import com.seob.application.ticket.redis.TicketPublisher;
+
+import com.seob.systeminfra.ticket.exception.DuplicateIssueTicketException;
+import com.seob.systeminfra.ticket.exception.PublishFailureException;
+import com.seob.systeminfra.ticket.exception.TicketExhaustedException;
+import com.seob.systeminfra.ticket.redis.TicketPublisher;
 import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.service.TicketService;
 import com.seob.systemdomain.user.domain.vo.UserId;
