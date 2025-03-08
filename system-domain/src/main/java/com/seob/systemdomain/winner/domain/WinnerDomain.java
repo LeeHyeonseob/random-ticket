@@ -49,4 +49,8 @@ public class WinnerDomain {
         this.status = RewardStatus.COMPLETE;
         this.sentAt = LocalDateTime.now();
     }
+
+    public void markAsFailed() {
+        this.status = RewardStatus.FAILED;
+    }
 }

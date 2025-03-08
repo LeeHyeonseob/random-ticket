@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WinnerRepository {
+
     WinnerDomain save(WinnerDomain winnerDomain);
+
     Optional<WinnerDomain> findById(Long winnerId);
+
     Optional<WinnerDomain> findByEventId(Long eventId);
-    List<WinnerDomain> findByUserId(UserId userId);
-    List<WinnerDomain> findAll();
+
     List<WinnerDomain> findByStatus(RewardStatus status);
-    List<WinnerDomain> findBySentAtBetween(LocalDateTime start, LocalDateTime end);
-    List<WinnerDomain> findByEventIdAndStatus(Long eventId, RewardStatus status);
+
     boolean existsByEventId(Long eventId);
-    void delete(WinnerDomain winnerDomain);
 }

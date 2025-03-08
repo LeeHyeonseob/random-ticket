@@ -4,6 +4,7 @@ import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systemdomain.event.vo.EventStatus;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface EventRepository {
@@ -14,6 +15,8 @@ public interface EventRepository {
     List<EventDomain> findAll();
 
     EventStatus findStatusById(Long id);
+
+    Long findIdByDate(LocalDate date);
 
     EventDisplayInfo findDisplayInfoById(Long id);
 

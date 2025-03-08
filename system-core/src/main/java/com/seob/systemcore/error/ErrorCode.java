@@ -30,6 +30,9 @@ public enum ErrorCode {
     //레디스 관련 에러
     REDIS_PUBLISH_ERROR(500, "R001", "Failed to publish to Redis stream"),
 
+    //참여 관련 에러
+    ENTRY_NOT_FOUND(400, "ET001", "Entry not found"),
+
     //파일 관련 에러
     FILE_UPLOAD_FAILED(500, "F001", "Failed to upload file"),
     FILE_DELETE_FAILED(500, "F002", "Failed to delete file"),
@@ -39,7 +42,12 @@ public enum ErrorCode {
 
     //보상 관련 에러
     REWARD_NOT_FOUND(404, "RW001", "Reward not found"),
-    REWARD_ALREADY_EXISTS(400, "RW002", "Reward already exists for this event");
+    REWARD_ALREADY_EXISTS(400, "RW002", "Reward already exists for this event"),
+    NO_REWARD_IN_EVENT(400, "RW003", "No reward in event"),
+
+    //당첨자 관련 에러
+    WINNER_NOT_FOUND(404, "W001", "Winner not found"),
+    ALREADY_WINNER_EXISTS(404, "W002", "Winner already exists");
     private final int status;
     private final String code;
     private final String message;

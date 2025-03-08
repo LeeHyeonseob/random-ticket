@@ -37,6 +37,15 @@ public class WinnerEntity {
         this.sentAt = sentAt;
     }
 
+    public void updateStatus(RewardStatus status) {
+        this.status = status;
+    }
+
+    public void markAsSent() {
+        this.status = RewardStatus.COMPLETE;
+        this.sentAt = LocalDateTime.now();
+    }
+
 
 
 }

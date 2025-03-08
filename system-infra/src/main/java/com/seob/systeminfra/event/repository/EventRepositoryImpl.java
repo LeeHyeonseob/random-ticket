@@ -12,6 +12,7 @@ import com.seob.systemdomain.event.vo.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -45,6 +46,16 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public EventStatus findStatusById(Long id) {
         return eventJpaRepository.findStatusById(id);
+    }
+
+    @Override
+    public Long findIdByDate(LocalDate date) {
+        QEventEntity event = QEventEntity.eventEntity;
+        return queryFactory
+                .select(event.id)
+                .from(event)
+                .where(event.eventDate.eq(date))
+                .fetchOne();
     }
 
     @Override
