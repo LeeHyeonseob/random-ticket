@@ -1,9 +1,9 @@
-package com.seob.application.reward.service;
+package com.seob.systeminfra.reward.service;
 
-import com.seob.application.reward.exception.RewardNotFoundException;
 import com.seob.systemdomain.reward.domain.RewardDomain;
 import com.seob.systemdomain.reward.repository.RewardRepository;
 import com.seob.systemdomain.reward.service.RewardService;
+import com.seob.systeminfra.reward.exception.RewardNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

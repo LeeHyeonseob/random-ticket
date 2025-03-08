@@ -1,10 +1,10 @@
-package com.seob.application.event.service;
+package com.seob.systeminfra.event.service;
 
-import com.seob.application.event.exception.InvalidEventStatusException;
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.event.service.EventService;
+import com.seob.systeminfra.event.exception.InvalidEventStatusException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

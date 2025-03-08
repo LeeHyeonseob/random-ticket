@@ -1,4 +1,4 @@
-package com.seob.application.winner.service;
+package com.seob.systeminfra.winner.service;
 
 import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.winner.domain.WinnerDomain;

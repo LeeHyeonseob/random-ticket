@@ -1,9 +1,6 @@
-package com.seob.application.entry.service;
+package com.seob.systeminfra.entry.service;
 
-import com.seob.application.entry.exception.AlreadyUsedTicketException;
-import com.seob.application.entry.exception.EventNotOpendExcpetion;
-import com.seob.application.ticket.exception.TicketNotFoundException;
-import com.seob.application.user.exception.UserNotFoundException;
+
 import com.seob.systemdomain.entry.domain.EntryDomain;
 import com.seob.systemdomain.entry.dto.ParticipantInfo;
 import com.seob.systemdomain.entry.dto.UserEventInfo;
@@ -13,16 +10,19 @@ import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.domain.vo.TicketId;
+import com.seob.systemdomain.ticket.exception.AlreadyUsedTicketException;
 import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.UserDomain;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.user.repository.UserRepository;
+import com.seob.systeminfra.entry.exception.EventNotOpendExcpetion;
+import com.seob.systeminfra.entry.exception.TicketNotFoundException;
+import com.seob.systeminfra.entry.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

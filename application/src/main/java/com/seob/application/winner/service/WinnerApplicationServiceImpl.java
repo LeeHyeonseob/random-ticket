@@ -1,7 +1,7 @@
 package com.seob.application.winner.service;
 
-import com.seob.application.reward.exception.RewardNotFoundException;
-import com.seob.application.user.exception.UserNotFoundException;
+import com.seob.systeminfra.reward.exception.RewardNotFoundException;
+import com.seob.systeminfra.entry.exception.UserNotFoundException;
 import com.seob.application.winner.exception.AlreadyWinnerExistsException;
 import com.seob.application.winner.exception.EntryNotFoundException;
 import com.seob.application.winner.exception.NoRewardInEventException;

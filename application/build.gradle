@@ -9,11 +9,22 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation("org.springframework.boot:spring-boot-starter-websocket") // WebSocket 지원
-	implementation("org.springframework.boot:spring-boot-starter-data-redis") // Redis 연동
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	//security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JWT 라이브러리
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// BCrypt
+	implementation 'org.springframework.security:spring-security-crypto'
+
 	runtimeOnly 'com.h2database:h2'
+
+
 
 }
 
