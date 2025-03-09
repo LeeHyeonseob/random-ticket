@@ -15,6 +15,12 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(400, "U002", "Invalid email format"),
     INVALID_PASSWORD_FORMAT(400, "U003", "Invalid password format"),
     PASSWORD_MISMATCH(400, "U004", "Password does not match"),
+    USER_NOT_ACTIVE(400, "U005", "User not active"),
+
+    //인증 에러
+    INVALID_CODE(400, "A001", "Invalid code"),
+    ALREADY_EXISTS_EMAIL(400, "A002", "Email already exists"),
+    ALREADY_VERIFY_CODE(400, "A003", "Verify code already exists"),
 
     // 티켓 관련 에러
     TICKET_ALREADY_USED(400, "T001", "Ticket has already been used"),
@@ -48,6 +54,8 @@ public enum ErrorCode {
     //당첨자 관련 에러
     WINNER_NOT_FOUND(404, "W001", "Winner not found"),
     ALREADY_WINNER_EXISTS(404, "W002", "Winner already exists");
+
+
     private final int status;
     private final String code;
     private final String message;
