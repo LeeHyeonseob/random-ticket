@@ -16,7 +16,7 @@ class EntryDomainTest {
         //given
         String userId = "123";
         Long eventId = 1L;
-        Long ticketId = 1L;
+        String ticketId = "1234";
 
         //when
         EntryDomain entryDomain = EntryDomain.create(UserId.of(userId),eventId, ticketId);
