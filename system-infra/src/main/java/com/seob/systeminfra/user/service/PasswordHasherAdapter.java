@@ -1,15 +1,15 @@
 package com.seob.systeminfra.user.service;
 
-import com.seob.systemdomain.user.domain.PasswordEncoder;
+import com.seob.systemdomain.user.domain.PasswordHasher;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class BCryptPasswordEncoderAdapter implements PasswordEncoder {
+public class PasswordHasherAdapter implements PasswordHasher {
 
-    private final BCryptPasswordEncoder encoder;
+    private final PasswordEncoder encoder;
 
     @Override
     public String encode(String rawPassword) {

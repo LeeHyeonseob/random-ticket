@@ -1,6 +1,6 @@
 package com.seob.systemdomain.user.domain;
 
-public interface PasswordEncoder {
+public interface PasswordHasher {
     String encode(String rawPassword);
 
     boolean matches(String rawPassword, String encodedPassword);

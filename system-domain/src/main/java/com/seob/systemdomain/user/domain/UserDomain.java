@@ -22,12 +22,12 @@ public class UserDomain {
 
 
 
-    public static UserDomain create(String email, String nickname, String password, PasswordEncoder passwordEncoder){
+    public static UserDomain create(String email, String nickname, String password, PasswordHasher passwordHasher){
         UserDomain user = new UserDomain();
         user.userId = UserId.create();
         user.email = Email.from(email);
         user.nickname = Nickname.of(nickname);
-        user.password = Password.encode(password,passwordEncoder);
+        user.password = Password.encode(password, passwordHasher);
         user.role = UserRole.USER;
         user.active = false;
 
@@ -46,9 +46,9 @@ public class UserDomain {
         return user;
     }
 
-    public void changePassword(String oldPassword, String newPassword, PasswordEncoder passwordEncoder){
-        password.matches(oldPassword,passwordEncoder);
-        password = Password.encode(newPassword,passwordEncoder);
+    public void changePassword(String oldPassword, String newPassword, PasswordHasher passwordHasher){
+        password.matches(oldPassword, passwordHasher);
+        password = Password.encode(newPassword, passwordHasher);
     }
 
     public void changeEmail(String newEmail){

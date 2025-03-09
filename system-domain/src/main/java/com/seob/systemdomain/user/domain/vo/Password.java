@@ -1,6 +1,6 @@
 package com.seob.systemdomain.user.domain.vo;
 
-import com.seob.systemdomain.user.domain.PasswordEncoder;
+import com.seob.systemdomain.user.domain.PasswordHasher;
 import com.seob.systemdomain.user.exception.InvalidPasswordFormatException;
 import com.seob.systemdomain.user.exception.PasswordMismatchException;
 import lombok.Getter;
@@ -18,10 +18,10 @@ public class Password {
         this.encodedValue = encodedValue;
     }
 
-    public static Password encode(String rawPassword, PasswordEncoder passwordEncoder) {
+    public static Password encode(String rawPassword, PasswordHasher passwordHasher) {
         validate(rawPassword);
 
-        String encodedPassword = passwordEncoder.encode(rawPassword);
+        String encodedPassword = passwordHasher.encode(rawPassword);
 
         return new Password(encodedPassword);
     }
@@ -32,8 +32,8 @@ public class Password {
         }
     }
 
-    public void matches(String rawPassword, PasswordEncoder passwordEncoder){
-        if(!passwordEncoder.matches(rawPassword, encodedValue)){
+    public void matches(String rawPassword, PasswordHasher passwordHasher){
+        if(!passwordHasher.matches(rawPassword, encodedValue)){
             throw PasswordMismatchException.EXCEPTION;
         }
     }

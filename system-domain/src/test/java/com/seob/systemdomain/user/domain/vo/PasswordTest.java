@@ -1,6 +1,6 @@
 package com.seob.systemdomain.user.domain.vo;
 
-import com.seob.systemdomain.user.domain.PasswordEncoder;
+import com.seob.systemdomain.user.domain.PasswordHasher;
 import com.seob.systemdomain.user.exception.InvalidPasswordFormatException;
 import com.seob.systemdomain.user.exception.PasswordMismatchException;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,7 @@ import static org.mockito.BDDMockito.given;
 class PasswordTest {
 
     @Mock
-    private PasswordEncoder mockPasswordEncoder;
+    private PasswordHasher mockPasswordHasher;
 
 
     @Test
@@ -27,10 +27,10 @@ class PasswordTest {
         // given
         String rawPassword = "Password123!";
 
-        given(mockPasswordEncoder.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
 
         // when
-        Password password = Password.encode(rawPassword, mockPasswordEncoder);
+        Password password = Password.encode(rawPassword, mockPasswordHasher);
 
         // then
         assertThat(password).isNotNull();
@@ -53,7 +53,7 @@ class PasswordTest {
 
         for (String invalid : invalidPasswords) {
             assertThrows(InvalidPasswordFormatException.class,
-                    () -> Password.encode(invalid, mockPasswordEncoder),
+                    () -> Password.encode(invalid, mockPasswordHasher),
                     "Should throw InvalidPasswordFormatException for password: " + invalid
             );
         }
@@ -81,10 +81,10 @@ class PasswordTest {
         String encodedPassword = "encodedPassword123!";
         Password password = Password.of(encodedPassword);
 
-        given(mockPasswordEncoder.matches(rawPassword, encodedPassword)).willReturn(true);
+        given(mockPasswordHasher.matches(rawPassword, encodedPassword)).willReturn(true);
 
         // when & then (예외가 발생하지 않으면 성공)
-        password.matches(rawPassword, mockPasswordEncoder);
+        password.matches(rawPassword, mockPasswordHasher);
     }
 
     @Test
@@ -95,11 +95,11 @@ class PasswordTest {
         String encodedPassword = "encodedPassword123!";
         Password password = Password.of(encodedPassword);
 
-        given(mockPasswordEncoder.matches(rawPassword, encodedPassword)).willReturn(false);
+        given(mockPasswordHasher.matches(rawPassword, encodedPassword)).willReturn(false);
 
         // when & then
         assertThrows(PasswordMismatchException.class,
-                () -> password.matches(rawPassword, mockPasswordEncoder));
+                () -> password.matches(rawPassword, mockPasswordHasher));
     }
 
 }

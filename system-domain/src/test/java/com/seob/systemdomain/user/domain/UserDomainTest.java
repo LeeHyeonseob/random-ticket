@@ -16,7 +16,7 @@ import static org.mockito.BDDMockito.given;
 class UserDomainTest {
 
     @Mock
-    private PasswordEncoder mockPasswordEncoder;
+    private PasswordHasher mockPasswordHasher;
 
     @Test
     @DisplayName("User 생성")
@@ -24,10 +24,11 @@ class UserDomainTest {
         //given
         String email = "hyeonseob22@gmail.com";
         String rawPassword = "Password123!";
+        String nickname = "nickname";
 
-        given(mockPasswordEncoder.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
         //when
-        UserDomain userDomain = UserDomain.create(email, rawPassword, mockPasswordEncoder);
+        UserDomain userDomain = UserDomain.create(email,nickname, rawPassword, mockPasswordHasher);
 
         //then
         assertNotNull(userDomain);
@@ -35,7 +36,7 @@ class UserDomainTest {
         assertThat(userDomain.getEmail().getValue()).isEqualTo("hyeonseob22@gmail.com");
         assertThat(userDomain.getPassword().getEncodedValue()).isEqualTo("encodedPassword123!");
         assertThat(userDomain.getRole().toString()).isEqualTo("USER");
-        assertThat(userDomain.getActive()).isFalse();
+        assertThat(userDomain.isActive()).isFalse();
 
     }
 
@@ -48,15 +49,17 @@ class UserDomainTest {
         String rawPassword = "Password123!";
         String oldPassword = "Password123!";
         String newPassword = "Password123@";
+        String nickname = "nickname";
 
-        given(mockPasswordEncoder.encode(rawPassword)).willReturn("encoded" + rawPassword);
-        UserDomain userDomain = UserDomain.create(email, rawPassword, mockPasswordEncoder);
 
-        given(mockPasswordEncoder.matches(rawPassword, "encoded" + rawPassword)).willReturn(true);
-        given(mockPasswordEncoder.encode(newPassword)).willReturn("encoded" + newPassword);
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
+
+        given(mockPasswordHasher.matches(rawPassword, "encoded" + rawPassword)).willReturn(true);
+        given(mockPasswordHasher.encode(newPassword)).willReturn("encoded" + newPassword);
 
         //when
-        userDomain.changePassword(rawPassword, newPassword, mockPasswordEncoder);
+        userDomain.changePassword(rawPassword, newPassword, mockPasswordHasher);
 
         //then
         assertThat(userDomain.getPassword().getEncodedValue()).isEqualTo("encodedPassword123@");
@@ -72,16 +75,18 @@ class UserDomainTest {
         String rawPassword = "Password123!";
         String wrongOldPassword = "WrongPassword!";
         String newPassword = "Password123@";
+        String nickname = "nickname";
 
-        given(mockPasswordEncoder.encode(rawPassword)).willReturn("encoded" + rawPassword);
-        UserDomain userDomain = UserDomain.create(email, rawPassword, mockPasswordEncoder);
+
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
 
         // 기존 비밀번호 매칭 실패
-        given(mockPasswordEncoder.matches(wrongOldPassword, "encoded" + rawPassword)).willReturn(false);
+        given(mockPasswordHasher.matches(wrongOldPassword, "encoded" + rawPassword)).willReturn(false);
 
         // when & then
         assertThrows(PasswordMismatchException.class,
-                () -> userDomain.changePassword(wrongOldPassword, newPassword, mockPasswordEncoder));
+                () -> userDomain.changePassword(wrongOldPassword, newPassword, mockPasswordHasher));
     }
 
     @Test
@@ -90,9 +95,11 @@ class UserDomainTest {
         // given
         String email = "hyeonseob22@gmail.com";
         String rawPassword = "Password123!";
+        String nickname = "nickname";
 
-        given(mockPasswordEncoder.encode(rawPassword)).willReturn("encoded" + rawPassword);
-        UserDomain userDomain = UserDomain.create(email, rawPassword, mockPasswordEncoder);
+
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
 
         // 기본적으로 USER 역할임
         assertThat(userDomain.getRole()).isEqualTo(UserRole.USER);
@@ -116,9 +123,11 @@ class UserDomainTest {
         //given
         String email = "hyeonseob22@gmail.com";
         String rawPassword = "Password123!";
+        String nickname = "nickname";
 
-        given(mockPasswordEncoder.encode(rawPassword)).willReturn("encoded" + rawPassword);
-        UserDomain userDomain = UserDomain.create(email, rawPassword, mockPasswordEncoder);
+
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
 
         assertThat(userDomain.isActive()).isFalse();
 
