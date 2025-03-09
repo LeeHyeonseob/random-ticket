@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WinnerServiceImpl implements WinnerService {
 
-    private WinnerRepository winnerRepository;
+    private final WinnerRepository winnerRepository;
 
 
     @Override
