@@ -1,5 +1,7 @@
 package com.seob.application.winner.service;
 
+import com.seob.systemdomain.event.repository.EventRepository;
+import com.seob.systeminfra.email.EmailService;
 import com.seob.systeminfra.reward.exception.RewardNotFoundException;
 import com.seob.systeminfra.entry.exception.UserNotFoundException;
 import com.seob.application.winner.exception.AlreadyWinnerExistsException;
@@ -33,7 +35,8 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
     private final EntryRepository entryRepository;
     private final RewardRepository rewardRepository;
     private final UserRepository userRepository;
-//    private final EmailService emailService;
+    private final EventRepository eventRepository;
+    private final EmailService emailService;
 
 
     /**
@@ -101,7 +104,10 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
                     .orElseThrow(() -> RewardNotFoundException.EXCEPTION)
                     .getResource_url();
 
+            String eventName = eventRepository.findById(winnerDomain.getEventId()).getName();
+
             //이메일 발송 로직 추가
+            emailService.sendRewardEmail(userEmail, eventName, rewardUrl);
 
 
             winnerService.updateStatus(winnerDomain, RewardStatus.COMPLETE);
