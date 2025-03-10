@@ -18,4 +18,7 @@ public interface EventService {
     EventDisplayInfo getEventDisplayInfo(Long eventId);
 
     List<EventDisplayInfo> getEventDisplayInfoList();
+
+    void closeYesterdayEvents();
+
 }

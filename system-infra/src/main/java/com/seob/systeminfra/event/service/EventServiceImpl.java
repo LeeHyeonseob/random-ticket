@@ -4,6 +4,7 @@ import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.event.service.EventService;
+import com.seob.systeminfra.event.exception.EventNotFoundException;
 import com.seob.systeminfra.event.exception.InvalidEventStatusException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,5 +68,18 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDisplayInfo> getEventDisplayInfoList() {
         return eventRepository.findAllDisplayInfo();
+    }
+
+    @Override
+    public void closeYesterdayEvents() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        Long eventId = eventRepository.findIdByDate(yesterday);
+
+        if(eventId == null) {
+            throw EventNotFoundException.EXCEPTION;
+        }
+
+        changeStatus(eventId, "CLOSED");
     }
 }
