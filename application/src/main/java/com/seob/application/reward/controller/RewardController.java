@@ -6,6 +6,7 @@ import com.seob.systemdomain.reward.domain.RewardDomain;
 import com.seob.systemdomain.reward.service.RewardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +18,7 @@ public class RewardController {
 
     // 보상 등록
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RewardResponse> registerReward(@RequestBody RegisterRewardRequest request){
         RewardDomain rewardDomain = rewardService.createReward(
                 request.eventId(),
