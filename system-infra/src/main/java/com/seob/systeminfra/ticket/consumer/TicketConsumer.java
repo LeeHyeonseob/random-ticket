@@ -33,9 +33,9 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
             String isUsedStr = ticketData.get("isUsed");
 
             //따옴표 제거
-            if (createdAtStr != null && createdAtStr.startsWith("\"") && createdAtStr.endsWith("\"")) {
-                createdAtStr = createdAtStr.substring(1, createdAtStr.length() - 1);
-            }
+            ticketIdStr = removeQuotes(ticketIdStr);
+            userIdStr = removeQuotes(userIdStr);
+            createdAtStr = removeQuotes(createdAtStr);
 
 
 
@@ -57,5 +57,12 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
             System.err.println("메시지 처리 중 오류 발생: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private String removeQuotes(String value) {
+        if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 }

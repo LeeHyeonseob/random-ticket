@@ -6,12 +6,14 @@ import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class TicketRepositoryImpl implements TicketRepository {
 
     private final TicketJpaRepository ticketJpaRepository;
@@ -25,6 +27,7 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public Optional<TicketDomain> findById(TicketId id) {
+        log.info("findById {}", id.getValue());
         return ticketJpaRepository.findById(id.getValue()).map(this::toDomain);
     }
 
