@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface TicketJpaRepository extends JpaRepository<TicketEntity, Long> {
+public interface TicketJpaRepository extends JpaRepository<TicketEntity, String> {
     Optional<TicketEntity> findByUserId(String userId);
 
     Optional<TicketEntity> findById(String id);
