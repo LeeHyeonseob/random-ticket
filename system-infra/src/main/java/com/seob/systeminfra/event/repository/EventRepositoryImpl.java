@@ -92,6 +92,7 @@ public class EventRepositoryImpl implements EventRepository {
     EventEntity toEntity(EventDomain eventDomain) {
 
         return new EventEntity(
+                eventDomain.getId(),
                 eventDomain.getName(),
                 eventDomain.getDescription(),
                 eventDomain.getStatus(),
@@ -102,6 +103,7 @@ public class EventRepositoryImpl implements EventRepository {
 
     EventDomain toDomain(EventEntity eventEntity) {
         return EventDomain.of(
+                eventEntity.getId(),
                 eventEntity.getName(),
                 eventEntity.getDescription(),
                 eventEntity.getStatus(),

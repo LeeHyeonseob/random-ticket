@@ -29,7 +29,8 @@ public class EventEntity {
 
     private LocalDateTime createdAt;
 
-    public EventEntity(String name, String description, EventStatus status, LocalDate eventDate, LocalDateTime createdAt) {
+    public EventEntity(Long id, String name, String description, EventStatus status, LocalDate eventDate, LocalDateTime createdAt) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;

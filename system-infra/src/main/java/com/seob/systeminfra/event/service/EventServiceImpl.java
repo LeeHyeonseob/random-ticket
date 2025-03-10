@@ -6,6 +6,7 @@ import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.event.service.EventService;
 import com.seob.systeminfra.event.exception.InvalidEventStatusException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -41,8 +43,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDomain changeStatus(Long eventId, String eventStatus) {
         EventDomain findEvent = findById(eventId);
-
+        log.info( "event Status : {}", eventStatus );
         return switch (eventStatus) {
+
             case "OPEN" -> {
                 findEvent.openEvent();
                 yield eventRepository.save(findEvent);

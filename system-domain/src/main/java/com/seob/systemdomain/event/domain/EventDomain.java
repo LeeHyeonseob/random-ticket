@@ -28,8 +28,9 @@ public class EventDomain {
         return eventDomain;
     }
 
-    public static EventDomain of(String name, String description, EventStatus status, LocalDate eventDate, LocalDateTime createdAt){
+    public static EventDomain of(Long id,String name, String description, EventStatus status, LocalDate eventDate, LocalDateTime createdAt){
         EventDomain eventDomain = new EventDomain();
+        eventDomain.id = id;
         eventDomain.name = name;
         eventDomain.description = description;
         eventDomain.status = status;
