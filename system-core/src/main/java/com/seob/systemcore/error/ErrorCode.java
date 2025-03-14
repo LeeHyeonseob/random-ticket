@@ -27,6 +27,8 @@ public enum ErrorCode {
     DUPLICATED_TICKET(400, "T002", "Duplicated ticket"),
     TICKET_ISSUANCE_EXHAUSTED(400, "T003", "All tickets have been issued"),
     TICKET_NOT_FOUND(400, "T004", "Ticket not found"),
+    TICKET_SERVICE_OVERLOADED(400, "T005", "Ticket service overloaded"),
+    TICKET_PROCESS_INTERRUPTED(400, "T006", "Ticket process interrupted"),
 
     //이벤트 관련 에러
     EVENT_NOT_FOUND(404,"E001","Event not found"),
@@ -35,6 +37,7 @@ public enum ErrorCode {
 
     //레디스 관련 에러
     REDIS_PUBLISH_ERROR(500, "R001", "Failed to publish to Redis stream"),
+
 
     //참여 관련 에러
     ENTRY_NOT_FOUND(400, "ET001", "Entry not found"),

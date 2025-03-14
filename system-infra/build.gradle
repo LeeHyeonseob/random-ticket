@@ -37,6 +37,9 @@ dependencies {
 
 	//Bcrypt
 	implementation 'org.springframework.security:spring-security-crypto'
+
+	//redisson
+	implementation 'org.redisson:redisson-spring-boot-starter:3.45.0'
 }
 
 
