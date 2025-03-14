@@ -62,6 +62,7 @@ public class RedisTicketService implements TicketService {
 
             // publish 실패 시 Set에서 제거
             redisTemplate.opsForSet().remove(TICKET_ISSUED_SET, userKey);
+            redisTemplate.opsForValue().decrement(TICKET_COUNTER_KEY);
             // publish 예외 발생 처리
             throw PublishFailureException.Exception;
         }
