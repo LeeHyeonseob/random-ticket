@@ -40,7 +40,7 @@ subprojects {
     tasks.register("prepareKotlinBuildScriptModel") {}
 
     //api 모듈만 bootJar 생성
-    if (project.name != 'api') {
+    if (project.name != 'application') {
         bootJar {
             enabled = false
         }

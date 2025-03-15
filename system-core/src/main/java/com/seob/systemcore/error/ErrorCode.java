@@ -15,9 +15,49 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(400, "U002", "Invalid email format"),
     INVALID_PASSWORD_FORMAT(400, "U003", "Invalid password format"),
     PASSWORD_MISMATCH(400, "U004", "Password does not match"),
+    USER_NOT_ACTIVE(400, "U005", "User not active"),
+
+    //인증 에러
+    INVALID_CODE(400, "A001", "Invalid code"),
+    ALREADY_EXISTS_EMAIL(400, "A002", "Email already exists"),
+    ALREADY_VERIFY_CODE(400, "A003", "Verify code already exists"),
 
     // 티켓 관련 에러
-    TICKET_ALREADY_USED(400, "T001", "Ticket has already been used");
+    TICKET_ALREADY_USED(400, "T001", "Ticket has already been used"),
+    DUPLICATED_TICKET(400, "T002", "Duplicated ticket"),
+    TICKET_ISSUANCE_EXHAUSTED(400, "T003", "All tickets have been issued"),
+    TICKET_NOT_FOUND(400, "T004", "Ticket not found"),
+    TICKET_SERVICE_OVERLOADED(400, "T005", "Ticket service overloaded"),
+    TICKET_PROCESS_INTERRUPTED(400, "T006", "Ticket process interrupted"),
+
+    //이벤트 관련 에러
+    EVENT_NOT_FOUND(404,"E001","Event not found"),
+    EVENT_NOT_OPENED(400,"E002","Event not opened"),
+    INVALID_EVENT_STATUS(400, "E003", "Invalid event status"),
+
+    //레디스 관련 에러
+    REDIS_PUBLISH_ERROR(500, "R001", "Failed to publish to Redis stream"),
+
+
+    //참여 관련 에러
+    ENTRY_NOT_FOUND(400, "ET001", "Entry not found"),
+
+    //파일 관련 에러
+    FILE_UPLOAD_FAILED(500, "F001", "Failed to upload file"),
+    FILE_DELETE_FAILED(500, "F002", "Failed to delete file"),
+    INVALID_FILE_FORMAT(400, "F003", "Invalid file format"),
+    FILE_SIZE_EXCEEDED(400, "F004", "File size exceeded"),
+    FILE_NOT_FOUND(404, "F005", "File not found"),
+
+    //보상 관련 에러
+    REWARD_NOT_FOUND(404, "RW001", "Reward not found"),
+    REWARD_ALREADY_EXISTS(400, "RW002", "Reward already exists for this event"),
+    NO_REWARD_IN_EVENT(400, "RW003", "No reward in event"),
+
+    //당첨자 관련 에러
+    WINNER_NOT_FOUND(404, "W001", "Winner not found"),
+    ALREADY_WINNER_EXISTS(404, "W002", "Winner already exists");
+
 
     private final int status;
     private final String code;
