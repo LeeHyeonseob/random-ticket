@@ -1,37 +1,55 @@
 package com.seob.systeminfra.ticket.consumer;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.stream.*;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class DlqProcessor {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final TicketConsumer ticketConsumer;
 
-    private static final String DLQ_STREAM = "ticket_stream_dlq";
-    private static final String DLQ_GROUP = "dlq_group";
-    private static final String DLQ_CONSUMER = "dlq_consumer";
+    @Value("${spring.redis.stream.dlq.name}")
+    private String dlqStream;
 
+    @Value("${spring.redis.stream.dlq.group}")
+    private String dlqGroup;
 
-    @Scheduled(fixedDelay = 60000) // 60초마다 실행
+    @Value("${spring.redis.stream.dlq.consumer:dlq_consumer}")
+    private String dlqConsumer;
+
+    @Value("${spring.redis.dlq.process-count:10}")
+    private int processCount;
+
+    @Value("${spring.redis.dlq.block-seconds:5}")
+    private int blockSeconds;
+
+    public DlqProcessor(
+            StringRedisTemplate stringRedisTemplate,
+            TicketConsumer ticketConsumer) {
+        this.redisTemplate = stringRedisTemplate;
+        this.ticketConsumer = ticketConsumer;
+    }
+
+    @Scheduled(fixedDelayString = "${spring.redis.dlq.schedule-delay:60000}")
     public void processDlqMessages() {
         log.info("DLQ 처리 스케줄러 실행...");
 
         try {
             // 1) DLQ 메시지 읽기
-            List<MapRecord<String, Object, Object>> messages = readDlqMessages(10, 5);
+            List<MapRecord<String, String, String>> messages = readDlqMessages(processCount, blockSeconds);
 
             if (messages == null || messages.isEmpty()) {
                 log.info("DLQ에 처리할 메시지가 없습니다.");
@@ -41,7 +59,7 @@ public class DlqProcessor {
             log.info("DLQ에서 {} 개의 메시지를 처리합니다.", messages.size());
 
             // 2) 메시지 반복 처리
-            for (MapRecord<String, Object, Object> message : messages) {
+            for (MapRecord<String, String, String> message : messages) {
                 processSingleMessage(message);
             }
         } catch (Exception e) {
@@ -49,52 +67,32 @@ public class DlqProcessor {
         }
     }
 
-    /**
-     * DLQ에서 메시지를 읽어온다.
-     *
-     * @param count        최대 읽을 메시지 개수
-     * @param blockSeconds 블로킹 대기 시간(초)
-     * @return 읽어온 메시지 리스트
-     */
-    private List<MapRecord<String, Object, Object>> readDlqMessages(long count, long blockSeconds) {
-        return redisTemplate
+    private List<MapRecord<String, String, String>> readDlqMessages(long count, long blockSeconds) {
+        // 원본 타입으로 메시지 읽기
+        List<MapRecord<String, Object, Object>> rawMessages = redisTemplate
                 .opsForStream()
                 .read(
-                        Consumer.from(DLQ_GROUP, DLQ_CONSUMER),
+                        Consumer.from(dlqGroup, dlqConsumer),
                         StreamReadOptions.empty().count(count).block(Duration.ofSeconds(blockSeconds)),
-                        StreamOffset.create(DLQ_STREAM, ReadOffset.lastConsumed())
+                        StreamOffset.create(dlqStream, ReadOffset.lastConsumed())
                 );
-    }
 
-    /**
-     * 각각의 메시지를 재처리하고 ACK까지 수행.
-     */
-    private void processSingleMessage(MapRecord<String, Object, Object> message) {
-        try {
-            log.info("DLQ 메시지 처리 시작: {}", message.getId());
-            log.debug("메시지 ID: {}, 데이터: {}", message.getId(), message.getValue());
-
-            // 변환
-            MapRecord<String, String, String> stringRecord = convertToStringRecord(message);
-
-            // TicketConsumer를 통해 재처리
-            ticketConsumer.onMessage(stringRecord);
-            log.info("DLQ 메시지 {} 재처리 성공", message.getId());
-
-        } catch (Exception e) {
-            log.error("DLQ 메시지 {} 처리 실패: {}", message.getId(), e.getMessage(), e);
-            // 알림 전송, 메트릭 증가 등 추가 오류 처리 로직
-        } finally {
-            // 처리 후 ACK
-            acknowledgeMessage(message);
+        // String 타입으로 변환
+        if (rawMessages == null || rawMessages.isEmpty()) {
+            return Collections.emptyList();
         }
+
+        // 읽은 메시지를 String 타입으로 변환
+        return rawMessages.stream()
+                .map(this::convertToStringRecord)
+                .collect(Collectors.toList());
     }
 
     /**
-     * MapRecord<String, Object, Object>를
-     * MapRecord<String, String, String>로 변환한다.
+     * MapRecord<String, Object, Object>를 MapRecord<String, String, String>으로 변환
      */
     private MapRecord<String, String, String> convertToStringRecord(MapRecord<String, Object, Object> message) {
+        // 필드와 값을 문자열로 변환
         Map<String, String> stringMap = new HashMap<>();
         message.getValue().forEach((k, v) -> stringMap.put(String.valueOf(k), String.valueOf(v)));
 
@@ -105,11 +103,31 @@ public class DlqProcessor {
     }
 
     /**
+     * 각각의 메시지를 재처리하고 ACK까지 수행.
+     */
+    private void processSingleMessage(MapRecord<String, String, String> message) {
+        try {
+            log.info("DLQ 메시지 처리 시작: {}", message.getId());
+            log.debug("메시지 ID: {}, 데이터: {}", message.getId(), message.getValue());
+
+            // TicketConsumer를 통해 재처리
+            ticketConsumer.onMessage(message);
+            log.info("DLQ 메시지 {} 재처리 성공", message.getId());
+
+        } catch (Exception e) {
+            log.error("DLQ 메시지 {} 처리 실패: {}", message.getId(), e.getMessage(), e);
+        } finally {
+            // 처리 후 ACK
+            acknowledgeMessage(message);
+        }
+    }
+
+    /**
      * 메시지를 ACK 처리한다.
      */
-    private void acknowledgeMessage(MapRecord<String, Object, Object> message) {
+    private void acknowledgeMessage(MapRecord<String, String, String> message) {
         try {
-            redisTemplate.opsForStream().acknowledge(DLQ_GROUP, message);
+            redisTemplate.opsForStream().acknowledge(dlqGroup, message);
             log.debug("DLQ 메시지 {} ACK 완료", message.getId());
         } catch (Exception e) {
             log.error("DLQ 메시지 {} ACK 실패: {}", message.getId(), e.getMessage());
