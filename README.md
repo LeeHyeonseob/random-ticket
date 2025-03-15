@@ -178,6 +178,3 @@ sequenceDiagram
 - [system-core](./system-core/README.md)
 - [independently-available](./independently-available/README.md)
 
-## 라이센스
-
-이 프로젝트는 Apache License 2.0 라이센스에 따라 배포됩니다.
