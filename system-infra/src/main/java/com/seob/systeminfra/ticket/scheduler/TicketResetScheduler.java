@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 public class TicketResetScheduler {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${redis.ticket.issued-set}")
+    @Value("${spring.redis.ticket.issued-set}")
     private String ticketIssuedSet;
 
-    @Value("${redis.ticket.counter-key}")
+    @Value("${spring.redis.ticket.counter-key}")
     private String ticketCounterKey;
 
 
