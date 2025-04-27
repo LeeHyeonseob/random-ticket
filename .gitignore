@@ -1,19 +1,13 @@
-# Gradle 관련
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!gradle/wrapper/gradle-wrapper.properties
-!gradlew
-!gradlew.bat
-
 # IntelliJ IDEA
 .idea/
+*.iws
 *.iml
 *.ipr
-*.iws
 out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-# STS (Spring Tool Suite)
+# Eclipse
 .apt_generated
 .classpath
 .factorypath
@@ -22,22 +16,53 @@ out/
 .springBeans
 .sts4-cache
 bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-# NetBeans
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# VS Code
-.vscode/
+# Compiled class file
+*.class
 
-# OS 관련
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# 테스트 및 로그 관련
-test-output/
+# Log files
 *.log
+log/
+logs/
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Mac OS
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+docker-compose.user.yml
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# MySQL data
+mysql-data/
+
+# Redis data
+redis-data/
+
+# 추가된 무시 항목
+.secrets/
+/volumes/
+**/node_modules/
+/tmp/
+/temp/
