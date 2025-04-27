@@ -28,21 +28,22 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid JWT token");
         }
 
-        //사용자 조회
+        // 토큰에서 사용자 ID와 역할 정보 추출
         UserId userId = jwtProvider.getUserIdFromToken(token);
+        String role = jwtProvider.getRoleFromToken(token);
+        
+        // 기본 정보는 여전히 데이터베이스에서 가져옴 (이메일 필요)
         UserDomain user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found for ID: " + userId));
 
-        //권한 설정
+        // 권한 설정 - 토큰에서 가져온 역할 정보 사용
         CustomUserDetails userDetails = new CustomUserDetails(
                 user.getUserId().getValue(),
                 user.getEmail().getValue(),
-                user.getRole().name()
+                role  // 토큰에서 추출한 역할 사용
         );
 
         return new JwtAuthenticationToken(userDetails, token, userDetails.getAuthorities());
-
-
     }
 
     @Override

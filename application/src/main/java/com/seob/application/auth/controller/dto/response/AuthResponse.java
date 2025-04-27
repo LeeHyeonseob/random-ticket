@@ -5,9 +5,15 @@ import com.seob.application.auth.service.dto.AuthServiceResponse;
 public record AuthResponse(
         String accessToken,
         String refreshToken,
-        Long accessTokenValidity
+        Long accessTokenValidity,
+        String role
 ) {
     public static AuthResponse of(AuthServiceResponse serviceResponse) {
-        return new AuthResponse(serviceResponse.accessToken(), serviceResponse.refreshToken(), serviceResponse.accessTokenValidity());
+        return new AuthResponse(
+            serviceResponse.accessToken(), 
+            serviceResponse.refreshToken(), 
+            serviceResponse.accessTokenValidity(),
+            serviceResponse.role()
+        );
     }
 }

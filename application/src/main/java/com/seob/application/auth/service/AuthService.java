@@ -106,8 +106,11 @@ public class AuthService {
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
         refreshTokenRepository.saveRefreshToken(user.getUserId(),refreshToken, jwtProvider.getRefreshTokenValidity());
+        
+        // 역할 정보를 토큰에서 가져와 응답에 포함
+        String role = jwtProvider.getRoleFromToken(accessToken);
 
-        return AuthServiceResponse.of(accessToken, refreshToken, jwtProvider.getAccessTokenValidity());
+        return AuthServiceResponse.of(accessToken, refreshToken, jwtProvider.getAccessTokenValidity(), role);
     }
 
     public AuthServiceResponse refresh(String refreshToken){
@@ -126,8 +129,11 @@ public class AuthService {
         String newRefreshToken = jwtProvider.generateRefreshToken(userId);
 
         refreshTokenRepository.saveRefreshToken(userId,newRefreshToken,jwtProvider.getRefreshTokenValidity());
+        
+        // 역할 정보를 토큰에서 가져와 응답에 포함
+        String role = jwtProvider.getRoleFromToken(newAccessToken);
 
-        return AuthServiceResponse.of(newAccessToken, newRefreshToken, jwtProvider.getAccessTokenValidity());
+        return AuthServiceResponse.of(newAccessToken, newRefreshToken, jwtProvider.getAccessTokenValidity(), role);
     }
 
     public void logout(UserId userId){

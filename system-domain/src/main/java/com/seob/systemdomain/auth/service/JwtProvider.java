@@ -6,6 +6,7 @@ public interface JwtProvider {
     String generateAccessToken(UserId userId);
     String generateRefreshToken(UserId userId);
     UserId getUserIdFromToken(String token);
+    String getRoleFromToken(String token);
     boolean validateToken(String token);
     long getAccessTokenValidity();
     long getRefreshTokenValidity();

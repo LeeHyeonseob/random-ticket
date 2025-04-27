@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: random-ticket-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+      - "5005:5005"  # 디버깅 포트
+    environment:
+      # 기본 설정
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_REDIS_HOST=${REDIS_HOST:-random-ticket-redis}
+      - SPRING_REDIS_PORT=${REDIS_PORT:-6379}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-random-ticket-mysql}:${DB_PORT:-3306}/${DB_NAME:-random_ticket}?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-1234}
+      
+      # JWT 설정
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_TOKEN_VALIDITY=${JWT_ACCESS_TOKEN_VALIDITY:-3600000}
+      - JWT_REFRESH_TOKEN_VALIDITY=${JWT_REFRESH_TOKEN_VALIDITY:-1209600000}
+      
+      # Redis 스트림 설정
+      - REDIS_STREAM_TICKET_NAME=${REDIS_STREAM_TICKET_NAME:-ticket_stream}
+      - REDIS_STREAM_TICKET_GROUP=${REDIS_STREAM_TICKET_GROUP:-ticket_group}
+      - REDIS_STREAM_TICKET_CONSUMER=${REDIS_STREAM_TICKET_CONSUMER:-ticket_consumer}
+      - REDIS_STREAM_DLQ_NAME=${REDIS_STREAM_DLQ_NAME:-ticket_stream_dlq}
+      - REDIS_STREAM_DLQ_GROUP=${REDIS_STREAM_DLQ_GROUP:-dlq_group}
+      - REDIS_STREAM_DLQ_CONSUMER=${REDIS_STREAM_DLQ_CONSUMER:-dlq_consumer}
+      - REDIS_TICKET_ISSUED_SET=${REDIS_TICKET_ISSUED_SET:-issued_tickets}
+      - REDIS_TICKET_COUNTER_KEY=${REDIS_TICKET_COUNTER_KEY:-ticket_counter}
+      - REDIS_TICKET_MAX_TICKETS=${REDIS_TICKET_MAX_TICKETS:-100}
+      - REDIS_TICKET_LOCK_KEY=${REDIS_TICKET_LOCK_KEY:-ticket_issuance_lock}
+      - REDIS_TICKET_LOCK_WAIT_TIME=${REDIS_TICKET_LOCK_WAIT_TIME:-5}
+      - REDIS_TICKET_LOCK_LEASE_TIME=${REDIS_TICKET_LOCK_LEASE_TIME:-10}
+      - REDIS_CONN_MIN_IDLE=${REDIS_CONN_MIN_IDLE:-1}
+      - REDIS_CONN_POOL_SIZE=${REDIS_CONN_POOL_SIZE:-2}
+      - REDIS_POLL_TIMEOUT=${REDIS_POLL_TIMEOUT:-100}
+      - REDIS_MAX_RETRY=${REDIS_MAX_RETRY:-3}
+      - REDIS_DLQ_PROCESS_COUNT=${REDIS_DLQ_PROCESS_COUNT:-10}
+      - REDIS_DLQ_BLOCK_SECONDS=${REDIS_DLQ_BLOCK_SECONDS:-5}
+      - REDIS_DLQ_SCHEDULE_DELAY=${REDIS_DLQ_SCHEDULE_DELAY:-60000}
+      
+      # AWS S3 설정
+      - AWS_REGION=${AWS_REGION:-ap-northeast-2}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME:-random-ticket-bucket}
+      
+      # 메일 설정
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+    volumes:
+      - ./application/src/main/resources:/app/resources
+      - ./logs:/app/logs
+    depends_on:
+      random-ticket-mysql:
+        condition: service_healthy
+      random-ticket-redis:
+        condition: service_started
+    networks:
+      - random-ticket-network
+    entrypoint: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+    restart: unless-stopped
+
+  random-ticket-redis:
+    container_name: random-ticket-redis
+    image: redis:7.0-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly no
+    networks:
+      - random-ticket-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+
+  random-ticket-mysql:
+    container_name: random-ticket-mysql
+    image: mysql:8.0
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-1234}
+      - MYSQL_DATABASE=${DB_NAME:-random_ticket}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - random-ticket-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+
+volumes:
+  redis-data:
+  mysql-data:
+
+networks:
+  random-ticket-network:
+    driver: bridge
