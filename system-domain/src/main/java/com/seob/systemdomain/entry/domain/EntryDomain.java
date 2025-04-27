@@ -35,6 +35,4 @@ public class EntryDomain {
         entryDomain.createdAt = createdAt;
         return entryDomain;
     }
-
-
 }

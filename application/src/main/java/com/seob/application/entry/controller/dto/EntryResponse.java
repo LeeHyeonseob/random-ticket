@@ -1,24 +1,23 @@
 package com.seob.application.entry.controller.dto;
 
-import com.seob.systemdomain.entry.domain.EntryDomain;
+import com.seob.systemdomain.entry.dto.EntryInfo;
 
 import java.time.LocalDateTime;
 
 public record EntryResponse(
-        Long id,
-        String userId,
-        Long eventId,
-        String ticketId,
-        LocalDateTime createdAt
+    Long id,
+    Long eventId,
+    String eventName,
+    String ticketId,
+    LocalDateTime createdAt
 ) {
-    public static EntryResponse of(EntryDomain entryDomain) {
+    public static EntryResponse of(EntryInfo info) {
         return new EntryResponse(
-                entryDomain.getId(),
-                entryDomain.getUserId().getValue(),
-                entryDomain.getEventId(),
-                entryDomain.getTicketId(),
-                entryDomain.getCreatedAt());
+            info.id(),
+            info.eventId(),
+            info.eventName(),
+            info.ticketId(),
+            info.createdAt()
+        );
     }
-
-
 }

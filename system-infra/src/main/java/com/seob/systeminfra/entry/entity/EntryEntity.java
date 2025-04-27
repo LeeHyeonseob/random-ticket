@@ -29,6 +29,5 @@ public class EntryEntity {
         this.eventId = eventId;
         this.ticketId = ticketId;
         this.createdAt = createdAt;
-
     }
 }

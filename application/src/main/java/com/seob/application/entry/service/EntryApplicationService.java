@@ -1,57 +1,17 @@
 package com.seob.application.entry.service;
 
-import com.seob.application.entry.service.dto.EventEntryResponse;
-import com.seob.application.entry.service.dto.EventParticipantResponse;
-import com.seob.application.entry.service.dto.UserEntryResponse;
-import com.seob.systemcore.error.utils.PrivacyUtils;
-import com.seob.systemdomain.entry.dto.ParticipantInfo;
-import com.seob.systemdomain.entry.dto.UserEventInfo;
-import com.seob.systemdomain.entry.service.EntryService;
-import com.seob.systemdomain.event.domain.EventDomain;
-import com.seob.systemdomain.event.service.EventService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.seob.application.entry.controller.dto.EntryResponse;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class EntryApplicationService {
+public interface EntryApplicationService {
 
-    private final EventService eventService;
-    private final EntryService entryService;
+    //현재 로그인한 사용자의 이벤트 참여 내역 조회
+    List<EntryResponse> getMyEntries();
 
-    @Transactional(readOnly = true)
-    public EventEntryResponse getEventWithParticipants(Long eventId) {
-        // 도메인 서비스를 통해 데이터 조회
-        EventDomain event = eventService.findById(eventId);
+    //특정 사용자의 이벤트 참여 내역 조회
+    List<EntryResponse> getUserEntries(String userId);
 
-        // EntryService 인터페이스에 메서드 추가 필요
-        List<ParticipantInfo> participantDetails = entryService.findParticipantDetailsByEventId(eventId);
-
-        List<EventParticipantResponse> participants = participantDetails.stream()
-                .map(detail -> EventParticipantResponse.of(
-                        detail.nickname(),
-                        PrivacyUtils.maskEmail(detail.email()),
-                        detail.registerTime()
-                ))
-                .toList();
-
-        return EventEntryResponse.from(event, participants);
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserEntryResponse> getUserEntries(String userId) {
-        // EntryService 인터페이스에 메서드 추가 필요
-        List<UserEventInfo> userEventInfos = entryService.findUserEventInfoByUserId(userId);
-
-        return userEventInfos.stream()
-                .map(info -> UserEntryResponse.of(
-                        info.eventName(),
-                        info.eventDate(),
-                        info.registeredAt()
-                ))
-                .toList();
-    }
+    //특정 이벤트의 참여 내역 조회
+    List<EntryResponse> getEventEntries(Long eventId);
 }
