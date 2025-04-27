@@ -11,7 +11,6 @@
   - [이벤트 참여](#이벤트-참여)
   - [당첨자 선정 및 보상 발송](#당첨자-선정-및-보상-발송)
 - [기술 블로그](#기술-블로그)
-- [모듈별 README](#모듈별-readme)
 
 ## 프로젝트 소개
 
@@ -169,11 +168,4 @@ sequenceDiagram
 - [Redis Stream에서 발생하는 따옴표 중첩 문제 해결하기](https://velog.io/@hyeonseob22/Redis-Stream%EC%97%90%EC%84%9C-%EB%B0%9C%EC%83%9D%ED%95%98%EB%8A%94-%EB%94%B0%EC%98%B4%ED%91%9C-%EC%A4%91%EC%B2%A9-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0%ED%95%98%EA%B8%B0)
 - [멀티모듈 프로젝트 설계](https://velog.io/@hyeonseob22/Temp-Title-gsdhgvye)
 
-## 모듈별 README
-
-- [application](./application/README.md)
-- [system-domain](./system-domain/README.md)
-- [system-infra](./system-infra/README.md)
-- [system-core](./system-core/README.md)
-- [independently-available](./independently-available/README.md)
 
