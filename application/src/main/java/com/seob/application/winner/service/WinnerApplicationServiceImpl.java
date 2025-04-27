@@ -1,6 +1,9 @@
 package com.seob.application.winner.service;
 
+import com.seob.application.common.utils.SecurityUtils;
 import com.seob.systemdomain.event.repository.EventRepository;
+import com.seob.systemdomain.winner.dto.WinnerPublicInfo;
+import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
 import com.seob.systeminfra.email.EmailService;
 import com.seob.systeminfra.reward.exception.RewardNotFoundException;
 import com.seob.systeminfra.entry.exception.UserNotFoundException;
@@ -13,7 +16,6 @@ import com.seob.systemdomain.reward.repository.RewardRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.user.repository.UserRepository;
 import com.seob.systemdomain.winner.domain.WinnerDomain;
-import com.seob.systemdomain.winner.dto.WinnerDetailInfo;
 import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
 import com.seob.systemdomain.winner.service.WinnerService;
@@ -130,19 +132,68 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WinnerDetailInfo> getWinnersByEventId(Long eventId) {
+    public List<WinnerRewardDetailInfo> getWinnersByEventId(Long eventId) {
         return winnerQueryRepository.findDetailsByEventId(eventId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<WinnerDetailInfo> getAllWinners() {
+    public List<WinnerRewardDetailInfo> getAllWinners() {
         return winnerQueryRepository.findAllDetails();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<WinnerDetailInfo> getWinnersByStatus(RewardStatus status) {
+    public List<WinnerRewardDetailInfo> getWinnersByStatus(RewardStatus status) {
         return winnerQueryRepository.findDetailsByStatus(status);
+    }
+    
+    //이름과 이메일로 당첨자 찾기
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkWinner(String name, String email) {
+        // 사용자 레포지토리에서 이름과 이메일로 사용자 찾기
+        List<UserId> userIds = userRepository.findByNameAndEmail(name, email);
+        
+        if (userIds.isEmpty()) {
+            return false;
+        }
+        
+        // 찾은 사용자들 중에 당첨자가 있는지 확인
+        for (UserId userId : userIds) {
+            List<WinnerUserDetailInfo> winners = winnerQueryRepository.findUserDetailsByUserId(userId.getValue());
+            if (!winners.isEmpty()) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    //현재 로그인한 사용자의 당첨 내역 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<WinnerUserDetailInfo> getMyWinners() {
+        // 현재 로그인한 사용자 ID 가져오기
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        return winnerQueryRepository.findUserDetailsByUserId(currentUserId);
+    }
+    
+    //공개 당첨자 목록 조회 (마스킹 처리) - 보상 정보를 포함하여 한 번에 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<WinnerPublicInfo> getPublicWinners(Long eventId) {
+        List<WinnerRewardDetailInfo> winnersWithReward;
+        
+        if (eventId != null) {
+            winnersWithReward = winnerQueryRepository.findDetailsByEventId(eventId);
+        } else {
+            winnersWithReward = winnerQueryRepository.findAllDetails();
+        }
+        
+        // 당첨자 정보 마스킹 처리 - 이미 보상 이름이 포함되어 있음
+        return winnersWithReward.stream()
+                .map(WinnerPublicInfo::of) // 새로 추가한 팩토리 메서드 사용
+                .toList();
     }
 }

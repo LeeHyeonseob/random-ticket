@@ -2,7 +2,7 @@ package com.seob.systeminfra.winner.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.seob.systemdomain.winner.dto.WinnerDetailInfo;
+import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
 import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
 import com.seob.systemdomain.winner.vo.RewardStatus;
@@ -21,19 +21,20 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<WinnerDetailInfo> findDetailsByEventId(Long eventId) {
+    public List<WinnerRewardDetailInfo> findDetailsByEventId(Long eventId) {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
 
         return queryFactory
-                .select(Projections.constructor(WinnerDetailInfo.class,
+                .select(Projections.constructor(WinnerRewardDetailInfo.class,
                         winner.id,
                         winner.userId,
                         user.nickname,
                         user.email,
                         winner.eventId,
                         event.name,
+                        event.description, // 이벤트 설명 사용
                         winner.rewardId,
                         winner.status,
                         winner.sentAt
@@ -46,19 +47,20 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
     }
 
     @Override
-    public List<WinnerDetailInfo> findDetailsByStatus(RewardStatus status) {
+    public List<WinnerRewardDetailInfo> findDetailsByStatus(RewardStatus status) {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
 
         return queryFactory
-                .select(Projections.constructor(WinnerDetailInfo.class,
+                .select(Projections.constructor(WinnerRewardDetailInfo.class,
                         winner.id,
                         winner.userId,
                         user.nickname,
                         user.email,
                         winner.eventId,
                         event.name,
+                        event.description, // 이벤트 설명 사용
                         winner.rewardId,
                         winner.status,
                         winner.sentAt
@@ -71,19 +73,20 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
     }
 
     @Override
-    public List<WinnerDetailInfo> findAllDetails() {
+    public List<WinnerRewardDetailInfo> findAllDetails() {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
 
         return queryFactory
-                .select(Projections.constructor(WinnerDetailInfo.class,
+                .select(Projections.constructor(WinnerRewardDetailInfo.class,
                         winner.id,
                         winner.userId,
                         user.nickname,
                         user.email,
                         winner.eventId,
                         event.name,
+                        event.description, // 이벤트 설명 사용
                         winner.rewardId,
                         winner.status,
                         winner.sentAt
