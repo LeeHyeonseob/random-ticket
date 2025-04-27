@@ -18,8 +18,12 @@ public class TicketDomain {
     private UserId userId;
 
     private LocalDateTime createdAt;
+    
+    private LocalDateTime usedAt;
 
     private Boolean isUsed;
+    
+    private Boolean isExpired;
 
 
     public static TicketDomain create(UserId userId){
@@ -28,6 +32,7 @@ public class TicketDomain {
         ticketDomain.userId = userId;
         ticketDomain.createdAt = LocalDateTime.now();
         ticketDomain.isUsed = false;
+        ticketDomain.isExpired = false;
         return ticketDomain;
     }
 
@@ -37,6 +42,7 @@ public class TicketDomain {
         ticketDomain.userId = userId;
         ticketDomain.createdAt = createdAt;
         ticketDomain.isUsed = isUsed;
+        ticketDomain.isExpired = false;
         return ticketDomain;
     }
 
@@ -45,10 +51,10 @@ public class TicketDomain {
             throw AlreadyUsedTicketException.EXCEPTION;
         }
         isUsed = true;
+        usedAt = LocalDateTime.now();
     }
 
     public boolean isUsed(){
-        return isUsed;
+        return Boolean.TRUE.equals(isUsed);
     }
-
 }
