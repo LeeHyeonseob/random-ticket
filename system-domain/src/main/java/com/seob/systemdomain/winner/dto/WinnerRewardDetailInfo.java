@@ -1,5 +1,7 @@
 package com.seob.systemdomain.winner.dto;
 
+import com.seob.systemdomain.winner.vo.RewardStatus;
+
 import java.time.LocalDateTime;
 
 public record WinnerRewardDetailInfo(
@@ -11,10 +13,9 @@ public record WinnerRewardDetailInfo(
         String eventName,
         String eventDescription, // 보상 이름 대신 이벤트 설명 사용
         Long rewardId,
-        String status,
+        RewardStatus status,
         LocalDateTime sentAt
 ) {
-    // 팩토리 메서드 추가
     public static WinnerRewardDetailInfo of(
             Long winnerId,
             String userId,
@@ -24,7 +25,7 @@ public record WinnerRewardDetailInfo(
             String eventName,
             String eventDescription,
             Long rewardId,
-            String status,
+            RewardStatus status,
             LocalDateTime sentAt
     ) {
         return new WinnerRewardDetailInfo(

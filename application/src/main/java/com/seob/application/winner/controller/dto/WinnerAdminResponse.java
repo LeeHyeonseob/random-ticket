@@ -27,7 +27,7 @@ public record WinnerAdminResponse(
                 info.eventName(),
                 info.eventDescription(),
                 info.rewardId(),
-                info.status(),
+                info.status().name(),
                 info.sentAt()
         );
     }
