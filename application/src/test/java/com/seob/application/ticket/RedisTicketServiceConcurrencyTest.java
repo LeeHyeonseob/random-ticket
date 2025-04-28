@@ -8,6 +8,7 @@ import com.seob.systeminfra.ticket.redis.TicketPublisher;
 import com.seob.systeminfra.ticket.service.RedisTicketService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Disabled("CI/CD 파이프라인 설정 전까지 비활성화")
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional  // 테스트 후 DB 자동 롤백
