@@ -1,5 +1,7 @@
 package com.seob.systemdomain.winner.dto;
 
+import com.seob.systemdomain.winner.vo.RewardStatus;
+
 import java.time.LocalDateTime;
 
 public record WinnerUserDetailInfo(
@@ -7,7 +9,7 @@ public record WinnerUserDetailInfo(
         Long eventId,
         String eventName,
         String eventDescription,
-        String status,
+        RewardStatus status,
         LocalDateTime sentAt
 ) {
 }
