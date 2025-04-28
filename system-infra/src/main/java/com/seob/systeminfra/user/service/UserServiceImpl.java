@@ -35,9 +35,7 @@ public class UserServiceImpl implements UserService {
         return UserProfileInfo.of(
             savedUser.getUserId().getValue(),
             savedUser.getEmail().getValue(),
-            savedUser.getNickname().getValue(),
-            null, // createdAt 값이 없음
-            null  // updatedAt 값이 없음
+            savedUser.getNickname().getValue()
         );
     }
 

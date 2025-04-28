@@ -6,11 +6,9 @@ import java.time.LocalDateTime;
 public record UserProfileInfo(
     String userId,
     String email,
-    String nickname,
-    LocalDateTime createdAt,
-    LocalDateTime updatedAt
+    String nickname
 ) {
-    public static UserProfileInfo of(String userId, String email, String nickname, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new UserProfileInfo(userId, email, nickname, createdAt, updatedAt);
+    public static UserProfileInfo of(String userId, String email, String nickname) {
+        return new UserProfileInfo(userId, email, nickname);
     }
 }

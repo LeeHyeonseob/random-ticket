@@ -53,9 +53,7 @@ public class UserRepositoryImpl implements UserRepository {
             UserProfileInfo profileInfo = UserProfileInfo.of(
                 entity.getUserId(),
                 entity.getEmail(),
-                entity.getNickname(),
-                null, // createdAt 정보 없음
-                null  // updatedAt 정보 없음
+                entity.getNickname()
             );
             return Optional.of(profileInfo);
         }

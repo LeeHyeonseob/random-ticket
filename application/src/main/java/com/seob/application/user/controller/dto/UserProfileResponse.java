@@ -7,17 +7,13 @@ import java.time.LocalDateTime;
 public record UserProfileResponse(
     String userId,
     String email,
-    String nickname,
-    LocalDateTime createdAt,
-    LocalDateTime updatedAt
+    String nickname
 ) {
     public static UserProfileResponse of(UserProfileInfo info) {
         return new UserProfileResponse(
             info.userId(),
             info.email(),
-            info.nickname(),
-            info.createdAt(),
-            info.updatedAt()
+            info.nickname()
         );
     }
 }
