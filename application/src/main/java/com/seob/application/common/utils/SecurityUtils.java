@@ -1,5 +1,6 @@
 package com.seob.application.common.utils;
 
+import com.seob.application.auth.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,21 +19,12 @@ public class SecurityUtils {
         Object principal = authentication.getPrincipal();
         
         if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
+            return ((CustomUserDetails) principal).getUserId().getValue();
         } else if (principal instanceof String) {
             return (String) principal;
         }
         
         throw new IllegalStateException("인증된 사용자 정보를 가져올 수 없습니다.");
-    }
-    
-    //현재 인증된 사용자의 ID를 가져오되, 없을 경우 null 반환
-    public static String getCurrentUserIdOrNull() {
-        try {
-            return getCurrentUserId();
-        } catch (Exception e) {
-            return null;
-        }
     }
     
     //현재 인증된 사용자가 특정 권한을 가지고 있는지 확인
