@@ -2,53 +2,109 @@ package com.seob.application.entry.service;
 
 import com.seob.application.common.utils.SecurityUtils;
 import com.seob.application.entry.controller.dto.EntryResponse;
-import com.seob.systemdomain.entry.dto.EntryInfo;
-import com.seob.systemdomain.entry.repository.EntryQueryRepository;
+import com.seob.systemdomain.entry.domain.EntryDomain;
+import com.seob.systemdomain.entry.dto.ParticipantInfo;
+import com.seob.systemdomain.entry.dto.UserEventInfo;
+import com.seob.systemdomain.entry.service.EntryQueryService;
+import com.seob.systemdomain.entry.service.EntryService;
+import com.seob.systemdomain.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class EntryApplicationServiceImpl implements EntryApplicationService {
 
-    private final EntryQueryRepository entryQueryRepository;
+    private final EntryService entryService;
+    private final EntryQueryService entryQueryService;
+    private final EventRepository eventRepository;
+    
+    @Override
+    public EntryResponse applyToEvent(Long eventId, String ticketId) {
+        // 현재 사용자 ID 가져오기
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        
+        // 이벤트 참여 처리
+        EntryDomain entry = entryService.apply(currentUserId, eventId, ticketId);
+        
+        // 이벤트 이름 조회
+        String eventName = eventRepository.findById(eventId).getName();
+        
+        // 응답 변환
+        return new EntryResponse(
+                entry.getId(),
+                entry.getEventId(),
+                eventName,
+                entry.getTicketId(),
+                entry.getCreatedAt()
+        );
+    }
 
     @Override
     @Transactional(readOnly = true)
     public List<EntryResponse> getMyEntries() {
         String currentUserId = SecurityUtils.getCurrentUserId();
+        List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(currentUserId);
         
-        // 현재 사용자의 이벤트 참여 내역 조회
-        List<EntryInfo> entries = entryQueryRepository.findByUserId(currentUserId);
-        
-        return entries.stream()
-                .map(EntryResponse::of)
-                .toList();
+        return userEvents.stream()
+                .map(info -> new EntryResponse(
+                        null, // ID 정보 없음
+                        null, // 이벤트 ID 정보 없음
+                        info.eventName(),
+                        null, // 티켓 ID 정보 없음
+                        info.registeredAt()
+                ))
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<EntryResponse> getUserEntries(String userId) {
-        // 특정 사용자의 이벤트 참여 내역 조회 (관리자 전용)
-        List<EntryInfo> entries = entryQueryRepository.findByUserId(userId);
+        // 관리자 권한 체크
+        if (!SecurityUtils.isAdmin()) {
+            throw new AccessDeniedException("관리자 권한이 필요합니다");
+        }
         
-        return entries.stream()
-                .map(EntryResponse::of)
-                .toList();
+        List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(userId);
+        
+        return userEvents.stream()
+                .map(info -> new EntryResponse(
+                        null,
+                        null,
+                        info.eventName(),
+                        null,
+                        info.registeredAt()
+                ))
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<EntryResponse> getEventEntries(Long eventId) {
-        // 특정 이벤트의 참여 내역 조회 (관리자 전용)
-        List<EntryInfo> entries = entryQueryRepository.findByEventId(eventId);
+        // 관리자 권한 체크
+        if (!SecurityUtils.isAdmin()) {
+            throw new AccessDeniedException("관리자 권한이 필요합니다");
+        }
         
-        return entries.stream()
-                .map(EntryResponse::of)
-                .toList();
+        // 이벤트 이름 조회
+        String eventName = eventRepository.findById(eventId).getName();
+        
+        List<ParticipantInfo> participants = entryQueryService.findParticipantDetailsByEventId(eventId);
+        
+        return participants.stream()
+                .map(info -> new EntryResponse(
+                        null,
+                        eventId,
+                        eventName,
+                        null,
+                        info.registerTime()
+                ))
+                .collect(Collectors.toList());
     }
 }

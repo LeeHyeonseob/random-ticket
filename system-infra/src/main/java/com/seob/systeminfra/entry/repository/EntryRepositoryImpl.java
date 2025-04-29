@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,32 +32,7 @@ public class EntryRepositoryImpl implements EntryRepository {
     }
 
     @Override
-    public List<EntryDomain> findByUserId(UserId userId) {
-        return entryJpaRepository.findByUserId(userId.getValue())
-                .stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EntryDomain> findByEventId(Long eventId) {
-        return entryJpaRepository.findByEventId(eventId)
-                .stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EntryDomain> findByUserId(String userId) {
-        return entryJpaRepository.findByUserId(userId)
-                .stream()
-                .map(this::toDomain)
-                .toList();
-    }
-
-    @Override
     public List<String> findUserIdByEventId(Long eventId) {
-
         return entryJpaRepository.findUserIdsByEventId(eventId);
     }
 
@@ -67,9 +41,6 @@ public class EntryRepositoryImpl implements EntryRepository {
         QEntryEntity entry = QEntryEntity.entryEntity;
         QUserEntity user = QUserEntity.userEntity;
 
-
-        //Tuple 한번 해보기 용도 ->  나중에 수정
-        //어차피 Querydsl 내부적으로 Projections와 동일하게 작동
         List<Tuple> results = queryFactory
                 .select(user.nickname, user.email, entry.createdAt)
                 .from(entry)
@@ -77,7 +48,6 @@ public class EntryRepositoryImpl implements EntryRepository {
                 .where(entry.eventId.eq(eventId))
                 .fetch();
 
-        // Tuple -> participantInfo dto로 변환
         return results.stream()
                 .map(tuple -> ParticipantInfo.of(
                         tuple.get(user.nickname),
@@ -100,12 +70,12 @@ public class EntryRepositoryImpl implements EntryRepository {
                 .from(entry)
                 .innerJoin(event).on(entry.eventId.eq(event.id))
                 .where(entry.userId.eq(userId))
-                .orderBy(entry.createdAt.desc())  // 최신 참가 내역부터 조회
+                .orderBy(entry.createdAt.desc())
                 .fetch();
     }
 
-
-    EntryEntity toEntity(EntryDomain entryDomain) {
+    // 엔티티-도메인 변환 메서드
+    private EntryEntity toEntity(EntryDomain entryDomain) {
         return new EntryEntity(
                 entryDomain.getUserId().getValue(),
                 entryDomain.getEventId(),
@@ -114,7 +84,7 @@ public class EntryRepositoryImpl implements EntryRepository {
         );
     }
 
-    EntryDomain toDomain(EntryEntity entryEntity) {
+    private EntryDomain toDomain(EntryEntity entryEntity) {
         return EntryDomain.of(
                 entryEntity.getId(),
                 entryEntity.getUserId(),

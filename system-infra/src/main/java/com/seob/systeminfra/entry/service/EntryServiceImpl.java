@@ -1,9 +1,6 @@
 package com.seob.systeminfra.entry.service;
 
-
 import com.seob.systemdomain.entry.domain.EntryDomain;
-import com.seob.systemdomain.entry.dto.ParticipantInfo;
-import com.seob.systemdomain.entry.dto.UserEventInfo;
 import com.seob.systemdomain.entry.repository.EntryRepository;
 import com.seob.systemdomain.entry.service.EntryService;
 import com.seob.systemdomain.event.domain.EventDomain;
@@ -22,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -36,74 +31,37 @@ public class EntryServiceImpl implements EntryService {
 
     @Override
     public EntryDomain apply(String userId, Long eventId, String ticketId) {
-
         EventDomain eventDomain = eventRepository.findById(eventId);
-
         TicketDomain ticket = getTicket(ticketId);
+        UserDomain user = getUser(UserId.of(userId));
 
-        UserDomain user = getUser(userId);
-
-        //이벤트 참가 가능 여부 체크
+        // 이벤트 참가 가능 여부 검증
         if (!eventDomain.canApply()) {
             throw EventNotOpendExcpetion.EXCEPTION;
         }
 
-        //티켓 사용여부 체크
+        // 티켓 사용 가능 여부 검증
         if(ticket.isUsed()){
             throw AlreadyUsedTicketException.EXCEPTION;
         }
 
-        //티켓 사용 처리
+        // 티켓 사용 처리
         ticket.use();
         ticketRepository.save(ticket);
 
-        //이벤트 참가
+        // 이벤트 참여 생성 및 저장
         EntryDomain entryDomain = EntryDomain.create(UserId.of(userId), eventId, ticketId);
-
         return entryRepository.save(entryDomain);
-
-
-
     }
 
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<EntryDomain> findByEventId(Long eventId) {
-        return entryRepository.findByEventId(eventId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<EntryDomain> findByUserId(String userId) {
-
-        UserDomain user = getUser(userId);
-
-        return entryRepository.findByUserId(userId);
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ParticipantInfo> findParticipantDetailsByEventId(Long eventId) {
-        return entryRepository.findParticipantDetailsByEventId(eventId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UserEventInfo> findUserEventInfoByUserId(String userId) {
-        // 사용자 존재 확인
-        getUser(userId);
-        return entryRepository.findUserEventInfoByUserId(userId);
-    }
-
-    //내부 메서드
-
-    private UserDomain getUser(String userId) {
-        return userRepository.findById(UserId.of(userId)).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+    // 내부 유틸리티 메서드
+    private UserDomain getUser(UserId userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.EXCEPTION);
     }
 
     private TicketDomain getTicket(String ticketId) {
-        return ticketRepository.findById(TicketId.of(ticketId)).orElseThrow(() -> TicketNotFoundException.EXCEPTION);
+        return ticketRepository.findById(TicketId.of(ticketId))
+                .orElseThrow(() -> TicketNotFoundException.EXCEPTION);
     }
 }
