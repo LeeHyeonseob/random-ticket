@@ -2,6 +2,8 @@ package com.seob.application.entry.service;
 
 import com.seob.application.common.utils.SecurityUtils;
 import com.seob.application.entry.controller.dto.EntryResponse;
+import com.seob.application.entry.controller.dto.ParticipantEntryResponse;
+import com.seob.application.entry.controller.dto.UserEntryResponse;
 import com.seob.systemdomain.entry.domain.EntryDomain;
 import com.seob.systemdomain.entry.dto.ParticipantInfo;
 import com.seob.systemdomain.entry.dto.UserEventInfo;
@@ -45,27 +47,42 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
                 entry.getCreatedAt()
         );
     }
+    
+    @Override
+    public EntryResponse applyToEventWithoutTicket(Long eventId) {
+        // 현재 사용자 ID 가져오기
+        String currentUserId = SecurityUtils.getCurrentUserId();
+        
+        // 티켓 ID 없이 이벤트 참여 처리
+        EntryDomain entry = entryService.applyWithoutTicketId(currentUserId, eventId);
+        
+        // 이벤트 이름 조회
+        String eventName = eventRepository.findById(eventId).getName();
+        
+        // 응답 변환
+        return new EntryResponse(
+                entry.getId(),
+                entry.getEventId(),
+                eventName,
+                entry.getTicketId(),
+                entry.getCreatedAt()
+        );
+    }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EntryResponse> getMyEntries() {
+    public List<UserEntryResponse> getMyEntries() {
         String currentUserId = SecurityUtils.getCurrentUserId();
         List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(currentUserId);
         
         return userEvents.stream()
-                .map(info -> new EntryResponse(
-                        null, // ID 정보 없음
-                        null, // 이벤트 ID 정보 없음
-                        info.eventName(),
-                        null, // 티켓 ID 정보 없음
-                        info.registeredAt()
-                ))
+                .map(UserEntryResponse::from)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EntryResponse> getUserEntries(String userId) {
+    public List<UserEntryResponse> getUserEntries(String userId) {
         // 관리자 권한 체크
         if (!SecurityUtils.isAdmin()) {
             throw new AccessDeniedException("관리자 권한이 필요합니다");
@@ -74,19 +91,13 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
         List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(userId);
         
         return userEvents.stream()
-                .map(info -> new EntryResponse(
-                        null,
-                        null,
-                        info.eventName(),
-                        null,
-                        info.registeredAt()
-                ))
+                .map(UserEntryResponse::from)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EntryResponse> getEventEntries(Long eventId) {
+    public List<ParticipantEntryResponse> getEventEntries(Long eventId) {
         // 관리자 권한 체크
         if (!SecurityUtils.isAdmin()) {
             throw new AccessDeniedException("관리자 권한이 필요합니다");
@@ -98,13 +109,7 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
         List<ParticipantInfo> participants = entryQueryService.findParticipantDetailsByEventId(eventId);
         
         return participants.stream()
-                .map(info -> new EntryResponse(
-                        null,
-                        eventId,
-                        eventName,
-                        null,
-                        info.registerTime()
-                ))
+                .map(info -> ParticipantEntryResponse.from(info, eventName))
                 .collect(Collectors.toList());
     }
 }

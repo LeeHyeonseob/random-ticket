@@ -6,6 +6,7 @@ import com.seob.systeminfra.ticket.entity.TicketEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,13 +30,20 @@ public class TicketQueryRepositoryImpl implements TicketQueryRepository {
         List<TicketInfo> ticketInfos = new ArrayList<>();
         
         for (TicketEntity ticket : tickets) {
-            // TicketInfo 객체 생성 (isExpired는 false로 설정 - 스케줄러가 관리)
+            // 티켓 유효성 검사
+            boolean isExpired = ticket.isExpired() || 
+                              (ticket.getExpiryDate() != null && 
+                               LocalDateTime.now().isAfter(ticket.getExpiryDate()));
+            
+            // TicketInfo 객체 생성
             ticketInfos.add(new TicketInfo(
                 ticket.getId(),
                 ticket.getUserId(),
+                ticket.getEventId(),
                 ticket.isUsed(),
-                false, // isExpired (스케줄러에서 관리하므로 항상 false)
-                ticket.getCreatedAt()
+                isExpired,
+                ticket.getCreatedAt(),
+                ticket.getExpiryDate()
             ));
         }
         
@@ -52,13 +60,20 @@ public class TicketQueryRepositoryImpl implements TicketQueryRepository {
             return null;
         }
         
+        // 티켓 유효성 검사
+        boolean isExpired = ticket.isExpired() || 
+                          (ticket.getExpiryDate() != null && 
+                           LocalDateTime.now().isAfter(ticket.getExpiryDate()));
+        
         // TicketInfo 객체 생성
         return new TicketInfo(
             ticket.getId(),
             ticket.getUserId(),
+            ticket.getEventId(),
             ticket.isUsed(),
-            false, // isExpired (스케줄러에서 관리하므로 항상 false)
-            ticket.getCreatedAt()
+            isExpired,
+            ticket.getCreatedAt(),
+            ticket.getExpiryDate()
         );
     }
 }

@@ -36,6 +36,12 @@ public class TicketPublisher {
         ticketData.put("userId", ticketDomain.getUserId().getValue());
         ticketData.put("createdAt", ticketDomain.getCreatedAt().toString()); // ISO 형식으로 문자열 변환
         ticketData.put("isUsed", String.valueOf(ticketDomain.isUsed()));
+
+        ticketData.put("eventId", String.valueOf(ticketDomain.getEventId()));
+        ticketData.put("usedAt", ticketDomain.getUsedAt() != null ? ticketDomain.getUsedAt().toString() : null);
+        ticketData.put("expiryDate", ticketDomain.getExpiryDate() != null ? ticketDomain.getExpiryDate().toString() : null);
+        ticketData.put("isExpired", String.valueOf(ticketDomain.getIsExpired()));
+        
         return ticketData;
     }
 }

@@ -2,6 +2,8 @@ package com.seob.application.entry.controller;
 
 import com.seob.application.entry.controller.dto.EntryCreateRequest;
 import com.seob.application.entry.controller.dto.EntryResponse;
+import com.seob.application.entry.controller.dto.ParticipantEntryResponse;
+import com.seob.application.entry.controller.dto.UserEntryResponse;
 import com.seob.application.entry.service.EntryApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,15 +25,25 @@ public class EntryController {
 
     @Operation(
         summary = "이벤트 참여 신청",
-        description = "티켓을 사용해 이벤트에 참여합니다. 인증이 필요합니다.",
+        description = "티켓을 사용해 이벤트에 참여합니다. 티켓 ID를 제공하면 해당 티켓을 사용하고, 제공하지 않으면 자동으로 적합한 티켓을 찾습니다. 인증이 필요합니다.",
         security = @SecurityRequirement(name = "bearerAuth")
     )
     @PostMapping("/events/{eventId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<EntryResponse> applyToEvent(
             @PathVariable Long eventId,
-            @RequestBody EntryCreateRequest request) {
-        EntryResponse response = entryApplicationService.applyToEvent(eventId, request.ticketId());
+            @RequestBody(required = false) EntryCreateRequest request) {
+        
+        EntryResponse response;
+        
+        if (request != null && request.ticketId() != null && !request.ticketId().isBlank()) {
+            // 티켓 ID가 제공된 경우 기존 로직 사용
+            response = entryApplicationService.applyToEvent(eventId, request.ticketId());
+        } else {
+            // 티켓 ID가 제공되지 않은 경우 자동 찾기 로직 사용
+            response = entryApplicationService.applyToEventWithoutTicket(eventId);
+        }
+        
         return ResponseEntity.ok(response);
     }
 
@@ -41,8 +53,8 @@ public class EntryController {
     )
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<EntryResponse>> getMyEntries() {
-        List<EntryResponse> entries = entryApplicationService.getMyEntries();
+    public ResponseEntity<List<UserEntryResponse>> getMyEntries() {
+        List<UserEntryResponse> entries = entryApplicationService.getMyEntries();
         return ResponseEntity.ok(entries);
     }
 
@@ -52,8 +64,8 @@ public class EntryController {
     )
     @GetMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EntryResponse>> getUserEntries(@PathVariable String userId) {
-        List<EntryResponse> entries = entryApplicationService.getUserEntries(userId);
+    public ResponseEntity<List<UserEntryResponse>> getUserEntries(@PathVariable String userId) {
+        List<UserEntryResponse> entries = entryApplicationService.getUserEntries(userId);
         return ResponseEntity.ok(entries);
     }
 
@@ -63,8 +75,8 @@ public class EntryController {
     )
     @GetMapping("/events/{eventId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EntryResponse>> getEventEntries(@PathVariable Long eventId) {
-        List<EntryResponse> entries = entryApplicationService.getEventEntries(eventId);
+    public ResponseEntity<List<ParticipantEntryResponse>> getEventEntries(@PathVariable Long eventId) {
+        List<ParticipantEntryResponse> entries = entryApplicationService.getEventEntries(eventId);
         return ResponseEntity.ok(entries);
     }
 }

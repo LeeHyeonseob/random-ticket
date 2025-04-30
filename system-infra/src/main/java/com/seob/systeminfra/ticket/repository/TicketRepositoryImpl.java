@@ -34,7 +34,19 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public Optional<TicketDomain> findByUserId(UserId userId) {
         Optional<TicketEntity> ticketEntities = ticketJpaRepository.findByUserId(userId.getValue());
-        return ticketEntities.map(entity -> toDomain(entity));
+        return ticketEntities.map(this::toDomain);
+    }
+
+    @Override
+    public Optional<TicketDomain> findByUserIdAndEventIdAndNotUsed(UserId userId, Long eventId) {
+        return ticketJpaRepository.findByUserIdAndEventIdAndIsUsedFalseAndIsExpiredFalse(userId.getValue(), eventId)
+                .map(this::toDomain);
+    }
+
+    @Override
+    public Optional<TicketDomain> findByUserIdAndNotUsed(UserId userId) {
+        return ticketJpaRepository.findByUserIdAndIsUsedFalseAndIsExpiredFalse(userId.getValue())
+                .map(this::toDomain);
     }
 
     @Override
@@ -42,16 +54,16 @@ public class TicketRepositoryImpl implements TicketRepository {
         return ticketJpaRepository.existsByUserId(userId.getValue());
     }
 
-
-
-
-
     private TicketEntity toEntity(TicketDomain domain) {
         return new TicketEntity(
                 domain.getId().getValue(),
                 domain.getUserId().getValue(),
+                domain.getEventId(),
                 domain.getCreatedAt(),
-                domain.isUsed()
+                domain.isUsed(),
+                domain.getUsedAt(),
+                domain.getExpiryDate(),
+                domain.getIsExpired()
         );
     }
 
@@ -59,10 +71,13 @@ public class TicketRepositoryImpl implements TicketRepository {
     private TicketDomain toDomain(TicketEntity entity) {
         return TicketDomain.of(
                 entity.getId(),
-                new UserId(entity.getUserId()), // UserId 생성자에 저장된 String 전달
+                new UserId(entity.getUserId()),
+                entity.getEventId(),
                 entity.getCreatedAt(),
-                entity.isUsed()
+                entity.getUsedAt(),
+                entity.getExpiryDate(),
+                entity.isUsed(),
+                entity.isExpired()
         );
     }
-
 }

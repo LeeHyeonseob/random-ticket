@@ -8,7 +8,6 @@ import com.seob.systemdomain.entry.dto.UserEventInfo;
 import com.seob.systeminfra.entry.entity.EntryEntity;
 import com.seob.systemdomain.entry.domain.EntryDomain;
 import com.seob.systemdomain.entry.repository.EntryRepository;
-import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systeminfra.entry.entity.QEntryEntity;
 import com.seob.systeminfra.event.entity.QEventEntity;
 import com.seob.systeminfra.user.entity.QUserEntity;

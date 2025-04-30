@@ -53,6 +53,34 @@ public class EntryServiceImpl implements EntryService {
         EntryDomain entryDomain = EntryDomain.create(UserId.of(userId), eventId, ticketId);
         return entryRepository.save(entryDomain);
     }
+    
+    @Override
+    public EntryDomain applyWithoutTicketId(String userId, Long eventId) {
+        EventDomain eventDomain = eventRepository.findById(eventId);
+        UserDomain user = getUser(UserId.of(userId));
+        UserId userIdVo = UserId.of(userId);
+
+        // 이벤트 참가 가능 여부 검증
+        if (!eventDomain.canApply()) {
+            throw EventNotOpendExcpetion.EXCEPTION;
+        }
+
+        // 1. 해당 이벤트와 사용자에 맞는 티켓 조회 시도
+        TicketDomain ticket = ticketRepository.findByUserIdAndEventIdAndNotUsed(userIdVo, eventId)
+                .orElseGet(() -> {
+                    // 2. 해당 이벤트용 티켓이 없으면 사용자의 미사용 티켓 중 하나 조회
+                    return ticketRepository.findByUserIdAndNotUsed(userIdVo)
+                            .orElseThrow(() -> TicketNotFoundException.EXCEPTION);
+                });
+
+        // 티켓 사용 처리
+        ticket.use();
+        ticketRepository.save(ticket);
+
+        // 이벤트 참여 생성 및 저장
+        EntryDomain entryDomain = EntryDomain.create(userIdVo, eventId, ticket.getId().getValue());
+        return entryRepository.save(entryDomain);
+    }
 
     // 내부 유틸리티 메서드
     private UserDomain getUser(UserId userId) {

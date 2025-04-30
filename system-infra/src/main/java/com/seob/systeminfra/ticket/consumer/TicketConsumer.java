@@ -84,12 +84,33 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
             String userIdStr = ticketData.get("userId");
             String createdAtStr = ticketData.get("createdAt");
             String isUsedStr = ticketData.get("isUsed");
+            
+            // 새 필드 파싱
+            String eventIdStr = ticketData.get("eventId");
+            String usedAtStr = ticketData.get("usedAt");
+            String expiryDateStr = ticketData.get("expiryDate");
+            String isExpiredStr = ticketData.get("isExpired");
 
             UserId userId = UserId.of(userIdStr);
             LocalDateTime createdAt = LocalDateTime.parse(createdAtStr);
             boolean isUsed = Boolean.parseBoolean(isUsedStr);
+            
+            // null이 아닌 경우만 변환
+            Long eventId = eventIdStr != null && !eventIdStr.equals("null") ? Long.parseLong(eventIdStr) : null;
+            LocalDateTime usedAt = usedAtStr != null && !usedAtStr.equals("null") ? LocalDateTime.parse(usedAtStr) : null;
+            LocalDateTime expiryDate = expiryDateStr != null && !expiryDateStr.equals("null") ? LocalDateTime.parse(expiryDateStr) : null;
+            boolean isExpired = isExpiredStr != null ? Boolean.parseBoolean(isExpiredStr) : false;
 
-            return TicketDomain.of(ticketIdStr, userId, createdAt, isUsed);
+            return TicketDomain.of(
+                ticketIdStr, 
+                userId, 
+                eventId, 
+                createdAt, 
+                usedAt, 
+                expiryDate, 
+                isUsed, 
+                isExpired
+            );
         } catch (DateTimeParseException e) {
             log.error("날짜 파싱 오류: {}", e.getMessage());
             throw new IllegalArgumentException("날짜 형식 오류: " + e.getMessage(), e);
