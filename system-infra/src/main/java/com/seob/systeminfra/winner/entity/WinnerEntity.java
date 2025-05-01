@@ -23,19 +23,24 @@ public class WinnerEntity {
     private Long eventId;
 
     private Long rewardId;
+    
+    private Long entryId;
 
     @Enumerated(EnumType.STRING)
     private RewardStatus status;
 
     private LocalDateTime sentAt;
 
-    public WinnerEntity(String userId, Long eventId, Long rewardId, RewardStatus status, LocalDateTime sentAt) {
+    public WinnerEntity(String userId, Long eventId, Long rewardId, Long entryId, 
+                       RewardStatus status, LocalDateTime sentAt) {
         this.userId = userId;
         this.eventId = eventId;
         this.rewardId = rewardId;
+        this.entryId = entryId;
         this.status = status;
         this.sentAt = sentAt;
     }
+
 
     public void updateStatus(RewardStatus status) {
         this.status = status;
@@ -45,7 +50,5 @@ public class WinnerEntity {
         this.status = RewardStatus.COMPLETE;
         this.sentAt = LocalDateTime.now();
     }
-
-
 
 }

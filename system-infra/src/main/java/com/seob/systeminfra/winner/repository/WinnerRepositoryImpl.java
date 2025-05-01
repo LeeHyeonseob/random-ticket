@@ -34,10 +34,11 @@ public class WinnerRepositoryImpl implements WinnerRepository {
     public Optional<WinnerDomain> findByEventId(Long eventId) {
         return winnerJpaRepository.findByEventId(eventId).map(this::toDomain);
     }
-
-
-
-
+    
+    @Override
+    public Optional<WinnerDomain> findByEntryId(Long entryId) {
+        return winnerJpaRepository.findByEntryId(entryId).map(this::toDomain);
+    }
 
     @Override
     public List<WinnerDomain> findByStatus(RewardStatus status) {
@@ -47,22 +48,22 @@ public class WinnerRepositoryImpl implements WinnerRepository {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
     @Override
     public boolean existsByEventId(Long eventId) {
         return winnerJpaRepository.existsByEventId(eventId);
     }
-
-
+    
+    @Override
+    public boolean existsByEntryId(Long entryId) {
+        return winnerJpaRepository.existsByEntryId(entryId);
+    }
 
     WinnerEntity toEntity(WinnerDomain winnerDomain) {
         return new WinnerEntity(
                 winnerDomain.getUserId().getValue(),
                 winnerDomain.getEventId(),
                 winnerDomain.getRewardId(),
+                winnerDomain.getEntryId(),
                 winnerDomain.getStatus(),
                 winnerDomain.getSentAt()
         );
@@ -74,9 +75,9 @@ public class WinnerRepositoryImpl implements WinnerRepository {
                 winnerEntity.getUserId(),
                 winnerEntity.getEventId(),
                 winnerEntity.getRewardId(),
+                winnerEntity.getEntryId(),
                 winnerEntity.getStatus(),
                 winnerEntity.getSentAt()
-
         );
     }
 }

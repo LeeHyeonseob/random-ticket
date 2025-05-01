@@ -15,8 +15,12 @@ public interface WinnerRepository {
     Optional<WinnerDomain> findById(Long winnerId);
 
     Optional<WinnerDomain> findByEventId(Long eventId);
+    
+    Optional<WinnerDomain> findByEntryId(Long entryId);
 
     List<WinnerDomain> findByStatus(RewardStatus status);
 
     boolean existsByEventId(Long eventId);
+    
+    boolean existsByEntryId(Long entryId);
 }

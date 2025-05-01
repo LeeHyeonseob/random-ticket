@@ -13,14 +13,12 @@ public interface WinnerJpaRepository extends JpaRepository<WinnerEntity,Long> {
     Optional<WinnerEntity> findById(Long id);
 
     Optional<WinnerEntity> findByEventId(Long eventId);
-
-    Optional<WinnerEntity> findByUserId(String userId);
+    
+    Optional<WinnerEntity> findByEntryId(Long entryId);
 
     List<WinnerEntity> findByStatus(RewardStatus status);
 
-    List<WinnerEntity> findBySentAtBetween(LocalDateTime start, LocalDateTime end);
-
-    List<WinnerEntity> findByEventIdAndStatus(Long eventId, RewardStatus status);
-
     boolean existsByEventId(Long eventId);
+    
+    boolean existsByEntryId(Long entryId);
 }
