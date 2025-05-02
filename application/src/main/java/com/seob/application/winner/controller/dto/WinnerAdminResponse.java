@@ -13,6 +13,7 @@ public record WinnerAdminResponse(
         String eventName,
         String eventDescription,
         Long rewardId,
+        String rewardName,
         String status,
         LocalDateTime sentAt
 
@@ -27,6 +28,7 @@ public record WinnerAdminResponse(
                 info.eventName(),
                 info.eventDescription(),
                 info.rewardId(),
+                info.rewardName(),
                 info.status().name(),
                 info.sentAt()
         );

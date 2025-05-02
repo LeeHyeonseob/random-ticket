@@ -104,7 +104,7 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
 
             String rewardUrl = rewardRepository.findById(winnerDomain.getRewardId())
                     .orElseThrow(() -> RewardNotFoundException.EXCEPTION)
-                    .getResource_url();
+                    .getResourceUrl();
 
             String eventName = eventRepository.findById(winnerDomain.getEventId()).getName();
 

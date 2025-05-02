@@ -10,22 +10,25 @@ import java.time.LocalDateTime;
 public class RewardDomain {
     private Long id;
     private Long eventId;
-    private String resource_url;
+    private String name;
+    private String resourceUrl;
     private LocalDateTime createdAt;
 
-    public static RewardDomain create(Long eventId, String resource_url){
+    public static RewardDomain create(Long eventId, String name, String resourceUrl){
         RewardDomain rewardDomain = new RewardDomain();
         rewardDomain.eventId = eventId;
-        rewardDomain.resource_url = resource_url;
+        rewardDomain.name = name;
+        rewardDomain.resourceUrl = resourceUrl;
         rewardDomain.createdAt = LocalDateTime.now();
         return rewardDomain;
     }
 
-    public static RewardDomain of(Long id, Long eventId,String resource_url, LocalDateTime createdAt){
+    public static RewardDomain of(Long id, Long eventId, String name, String resourceUrl, LocalDateTime createdAt){
         RewardDomain rewardDomain = new RewardDomain();
         rewardDomain.id = id;
         rewardDomain.eventId = eventId;
-        rewardDomain.resource_url = resource_url;
+        rewardDomain.name = name;
+        rewardDomain.resourceUrl = resourceUrl;
         rewardDomain.createdAt = createdAt;
         return rewardDomain;
     }

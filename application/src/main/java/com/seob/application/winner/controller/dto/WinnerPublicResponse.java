@@ -10,6 +10,7 @@ public record WinnerPublicResponse(
         String maskedName,
         String maskedEmail,
         String eventDescription,
+        String rewardName,
         LocalDateTime announcedAt
 ) {
     public static WinnerPublicResponse of(WinnerPublicInfo info) {
@@ -19,6 +20,7 @@ public record WinnerPublicResponse(
                 info.maskedName(),
                 info.maskedEmail(),
                 info.eventDescription(),
+                info.rewardName(),          // 추가: rewardName 필드 값 전달
                 info.announcedAt()
         );
     }

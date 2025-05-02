@@ -9,6 +9,7 @@ public record WinnerUserDetailInfo(
         Long eventId,
         String eventName,
         String eventDescription,
+        String rewardName,
         RewardStatus status,
         LocalDateTime sentAt
 ) {

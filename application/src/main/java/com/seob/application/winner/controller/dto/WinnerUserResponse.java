@@ -10,6 +10,7 @@ public record WinnerUserResponse(
         Long eventId,
         String eventName,
         String eventDescription,
+        String rewardName,
         RewardStatus status,
         LocalDateTime sentAt
 ) {
@@ -19,6 +20,7 @@ public record WinnerUserResponse(
                 info.eventId(),
                 info.eventName(),
                 info.eventDescription(),
+                info.rewardName(),
                 info.status(),
                 info.sentAt()
         );

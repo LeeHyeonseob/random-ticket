@@ -7,6 +7,7 @@ import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
 import com.seob.systemdomain.winner.vo.RewardStatus;
 import com.seob.systeminfra.event.entity.QEventEntity;
+import com.seob.systeminfra.reward.entity.QRewardEntity;
 import com.seob.systeminfra.user.entity.QUserEntity;
 import com.seob.systeminfra.winner.entity.QWinnerEntity;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
+        QRewardEntity reward = QRewardEntity.rewardEntity;
 
         return queryFactory
                 .select(Projections.constructor(WinnerRewardDetailInfo.class,
@@ -34,14 +36,16 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         user.email,
                         winner.eventId,
                         event.name,
-                        event.description, // 이벤트 설명 사용
+                        event.description,
                         winner.rewardId,
+                        reward.name,
                         winner.status,
                         winner.sentAt
                 ))
                 .from(winner)
                 .innerJoin(user).on(winner.userId.eq(user.userId))
                 .innerJoin(event).on(winner.eventId.eq(event.id))
+                .innerJoin(reward).on(winner.rewardId.eq(reward.id))
                 .where(winner.eventId.eq(eventId))
                 .fetch();
     }
@@ -51,6 +55,7 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
+        QRewardEntity reward = QRewardEntity.rewardEntity;
 
         return queryFactory
                 .select(Projections.constructor(WinnerRewardDetailInfo.class,
@@ -60,14 +65,16 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         user.email,
                         winner.eventId,
                         event.name,
-                        event.description, // 이벤트 설명 사용
+                        event.description,
                         winner.rewardId,
+                        reward.name,
                         winner.status,
                         winner.sentAt
                 ))
                 .from(winner)
                 .innerJoin(user).on(winner.userId.eq(user.userId))
                 .innerJoin(event).on(winner.eventId.eq(event.id))
+                .innerJoin(reward).on(winner.rewardId.eq(reward.id))
                 .where(winner.status.eq(status))
                 .fetch();
     }
@@ -77,6 +84,7 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
+        QRewardEntity reward = QRewardEntity.rewardEntity;
 
         return queryFactory
                 .select(Projections.constructor(WinnerRewardDetailInfo.class,
@@ -86,14 +94,16 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         user.email,
                         winner.eventId,
                         event.name,
-                        event.description, // 이벤트 설명 사용
+                        event.description,
                         winner.rewardId,
+                        reward.name,
                         winner.status,
                         winner.sentAt
                 ))
                 .from(winner)
                 .innerJoin(user).on(winner.userId.eq(user.userId))
                 .innerJoin(event).on(winner.eventId.eq(event.id))
+                .innerJoin(reward).on(winner.rewardId.eq(reward.id))
                 .fetch();
     }
 
@@ -102,6 +112,7 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
         QWinnerEntity winner = QWinnerEntity.winnerEntity;
         QUserEntity user = QUserEntity.userEntity;
         QEventEntity event = QEventEntity.eventEntity;
+        QRewardEntity reward = QRewardEntity.rewardEntity;
 
         return queryFactory
                 .select(Projections.constructor(WinnerUserDetailInfo.class,
@@ -109,11 +120,13 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         winner.eventId,
                         event.name,
                         event.description,
+                        reward.name,
                         winner.status,
                         winner.sentAt
                 ))
                 .from(winner)
                 .innerJoin(event).on(winner.eventId.eq(event.id))
+                .innerJoin(reward).on(winner.rewardId.eq(reward.id))
                 .where(winner.userId.eq(userId))
                 .fetch();
     }

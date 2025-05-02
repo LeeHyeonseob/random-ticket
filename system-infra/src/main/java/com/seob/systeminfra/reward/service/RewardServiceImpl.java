@@ -18,8 +18,8 @@ public class RewardServiceImpl implements RewardService {
     private final RewardRepository rewardRepository;
 
     @Override
-    public RewardDomain createReward(Long eventId, String resourceUrl) {
-        RewardDomain rewardDomain = RewardDomain.create(eventId, resourceUrl);
+    public RewardDomain createReward(Long eventId,String rewardName,  String resourceUrl) {
+        RewardDomain rewardDomain = RewardDomain.create(eventId, rewardName, resourceUrl);
         RewardDomain saved = rewardRepository.save(rewardDomain);
         return saved;
     }

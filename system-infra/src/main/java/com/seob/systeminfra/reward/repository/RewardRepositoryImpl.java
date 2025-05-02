@@ -35,7 +35,8 @@ public class RewardRepositoryImpl implements RewardRepository {
     RewardEntity toEntity(RewardDomain rewardDomain) {
         return new RewardEntity(
                 rewardDomain.getEventId(),
-                rewardDomain.getResource_url(),
+                rewardDomain.getName(),
+                rewardDomain.getResourceUrl(),
                 rewardDomain.getCreatedAt()
         );
     }
@@ -44,7 +45,8 @@ public class RewardRepositoryImpl implements RewardRepository {
         return RewardDomain.of(
                 rewardEntity.getId(),
                 rewardEntity.getEventId(),
-                rewardEntity.getResource_url(),
+                rewardEntity.getName(),
+                rewardEntity.getResourceUrl(),
                 rewardEntity.getCreatedAt()
         );
     }

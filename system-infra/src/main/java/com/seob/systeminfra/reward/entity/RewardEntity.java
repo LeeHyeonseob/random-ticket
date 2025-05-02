@@ -18,14 +18,18 @@ public class RewardEntity {
 
     private Long eventId;
 
-    private String resource_url;
+    private String name;
+
+    @Column(name = "resource_url")
+    private String resourceUrl;
 
     private LocalDateTime createdAt;
 
 
-    public RewardEntity(Long eventId, String resource_url, LocalDateTime createdAt) {
+    public RewardEntity(Long eventId, String name, String resourceUrl, LocalDateTime createdAt) {
         this.eventId = eventId;
-        this.resource_url = resource_url;
+        this.name = name;
+        this.resourceUrl = resourceUrl;
         this.createdAt = createdAt;
     }
 

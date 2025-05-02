@@ -41,6 +41,7 @@ public class RewardController {
     public ResponseEntity<RewardResponse> registerReward(@RequestBody RegisterRewardRequest request){
         RewardDomain rewardDomain = rewardService.createReward(
                 request.eventId(),
+                request.rewardName(),
                 request.rewardUrl()
         );
         return ResponseEntity.ok(RewardResponse.of(rewardDomain));

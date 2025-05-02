@@ -13,6 +13,7 @@ public record WinnerRewardDetailInfo(
         String eventName,
         String eventDescription, // 보상 이름 대신 이벤트 설명 사용
         Long rewardId,
+        String rewardName,
         RewardStatus status,
         LocalDateTime sentAt
 ) {
@@ -25,12 +26,13 @@ public record WinnerRewardDetailInfo(
             String eventName,
             String eventDescription,
             Long rewardId,
+            String rewardName,
             RewardStatus status,
             LocalDateTime sentAt
     ) {
         return new WinnerRewardDetailInfo(
                 winnerId, userId, nickName, userEmail, eventId, 
-                eventName, eventDescription, rewardId, status, sentAt
+                eventName, eventDescription, rewardId, rewardName, status, sentAt
         );
     }
 }

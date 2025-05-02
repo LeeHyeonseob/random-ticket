@@ -8,7 +8,8 @@ public record WinnerPublicInfo(
     String eventName,
     String maskedName,  // 마스킹 처리된 사용자 이름
     String maskedEmail, // 마스킹 처리된 이메일
-    String eventDescription, // 보상 이름 대신 이벤트 설명 사용
+    String eventDescription, // 이벤트 설명
+    String rewardName,
     LocalDateTime announcedAt
 ) {
     // WinnerRewardDetailInfo를 사용하는 팩토리 메서드
@@ -18,7 +19,8 @@ public record WinnerPublicInfo(
             detailInfo.eventName(),
             maskName(detailInfo.nickName()),
             maskEmail(detailInfo.userEmail()),
-            detailInfo.eventDescription(), // 이벤트 설명 사용
+            detailInfo.eventDescription(),
+            detailInfo.rewardName(),
             detailInfo.sentAt()
         );
     }
