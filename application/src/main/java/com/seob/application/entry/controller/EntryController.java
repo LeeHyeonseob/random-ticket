@@ -34,16 +34,8 @@ public class EntryController {
             @PathVariable Long eventId,
             @RequestBody(required = false) EntryCreateRequest request) {
         
-        EntryResponse response;
-        
-        if (request != null && request.ticketId() != null && !request.ticketId().isBlank()) {
-            // 티켓 ID가 제공된 경우 기존 로직 사용
-            response = entryApplicationService.applyToEvent(eventId, request.ticketId());
-        } else {
-            // 티켓 ID가 제공되지 않은 경우 자동 찾기 로직 사용
-            response = entryApplicationService.applyToEventWithoutTicket(eventId);
-        }
-        
+        EntryResponse response = entryApplicationService.applyToEventWithoutTicket(eventId);
+
         return ResponseEntity.ok(response);
     }
 
