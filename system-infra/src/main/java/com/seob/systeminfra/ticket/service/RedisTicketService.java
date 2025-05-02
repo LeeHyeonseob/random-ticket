@@ -37,7 +37,7 @@ public class RedisTicketService implements TicketService {
     private long lockLeaseTime;
     
     @Override
-    public TicketDomain issueTicket(UserId userId) {
+    public TicketDomain issueTicket(UserId userId, Long eventId) {
         RLock lock = redissonClient.getLock(ticketLock);
         
         try {
@@ -46,8 +46,8 @@ public class RedisTicketService implements TicketService {
             // 저장소 의존 검증 로직 - 인프라 서비스에서 직접 처리
             validateTicketIssuance(userId);
             
-            // 도메인 객체 생성 - 직접 도메인 모델의 팩토리 메서드 호출
-            TicketDomain ticket = TicketDomain.create(userId);
+            // 도메인 객체 생성 - eventId 포함
+            TicketDomain ticket = TicketDomain.create(userId, eventId);
             
             try {
                 // 이벤트 발행
@@ -56,7 +56,9 @@ public class RedisTicketService implements TicketService {
                 // 발급 완료 처리 - 저장소 작업
                 completeIssuance(userId);
                 
-                log.info("Successfully issued ticket for user: {}", userId.getValue());
+                log.info("Successfully issued ticket for user: {} and event: {}", 
+                         userId.getValue(), eventId);
+                
                 return ticket;
             } catch (Exception e) {
                 // 실패 시 롤백
@@ -99,7 +101,7 @@ public class RedisTicketService implements TicketService {
         issuanceRepository.cancelIssuance(userId);
     }
 
-    //Redis 락 획득
+    // Redis 락 획득
     private void acquireLock(RLock lock) throws InterruptedException {
         boolean isLocked = lock.tryLock(lockWaitTime, lockLeaseTime, TimeUnit.SECONDS);
         if (!isLocked) {
@@ -108,8 +110,7 @@ public class RedisTicketService implements TicketService {
         }
     }
     
-
-    //Redis 락 해제
+    // Redis 락 해제
     private void releaseLock(RLock lock) {
         if (lock.isHeldByCurrentThread()) {
             lock.unlock();

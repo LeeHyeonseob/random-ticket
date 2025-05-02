@@ -5,7 +5,6 @@ import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
@@ -97,7 +96,7 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
             
             // null이 아닌 경우만 변환
             Long eventId = eventIdStr != null && !eventIdStr.equals("null") ? Long.parseLong(eventIdStr) : null;
-            LocalDateTime usedAt = usedAtStr != null && !usedAtStr.equals("null") ? LocalDateTime.parse(usedAtStr) : null;
+            LocalDateTime usedAt = usedAtStr != null && !usedAtStr.equals("null") && !usedAtStr.isEmpty() ? LocalDateTime.parse(usedAtStr) : null;
             LocalDateTime expiryDate = expiryDateStr != null && !expiryDateStr.equals("null") ? LocalDateTime.parse(expiryDateStr) : null;
             boolean isExpired = isExpiredStr != null ? Boolean.parseBoolean(isExpiredStr) : false;
 

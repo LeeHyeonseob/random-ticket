@@ -101,7 +101,9 @@ public class RedisTicketServiceConcurrencyTest {
     public void testBasicTicketIssuance() {
         // 기본 기능 테스트
         UserId userId = UserId.of("testUser");
-        TicketDomain ticket = redisTicketService.issueTicket(userId);
+        Long eventId = 1L; // 테스트용 이벤트 ID 추가
+        
+        TicketDomain ticket = redisTicketService.issueTicket(userId, eventId);
 
         // 검증
         assertNotNull(ticket);
@@ -124,6 +126,7 @@ public class RedisTicketServiceConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failureCount = new AtomicInteger(0);
         List<String> userIds = new ArrayList<>();
+        Long eventId = 1L; // 테스트용 이벤트 ID 추가
 
         // 여러 스레드에서 동시에 티켓 발급 요청
         for (int i = 0; i < requestCount; i++) {
@@ -135,7 +138,7 @@ public class RedisTicketServiceConcurrencyTest {
                     startLatch.await();
 
                     try {
-                        redisTicketService.issueTicket(UserId.of(userId));
+                        redisTicketService.issueTicket(UserId.of(userId), eventId);
                         successCount.incrementAndGet();
                     } catch (Exception e) {
                         System.err.println("Error issuing ticket for " + userId + ": " + e.getMessage());
@@ -180,6 +183,7 @@ public class RedisTicketServiceConcurrencyTest {
     public void demonstrateConcurrencyIssueWithDelay() throws InterruptedException {
         // 원래 서비스를 저장
         RedisTicketService originalService = redisTicketService;
+        Long eventId = 1L; // 테스트용 이벤트 ID 추가
 
         // TicketPublisher 모킹을 재설정 (이미 @MockBean으로 주입됨)
         reset(ticketPublisher);
@@ -212,7 +216,7 @@ public class RedisTicketServiceConcurrencyTest {
                         startLatch.await();
 
                         try {
-                            redisTicketService.issueTicket(UserId.of(userId));
+                            redisTicketService.issueTicket(UserId.of(userId), eventId);
                             successCount.incrementAndGet();
                         } catch (Exception e) {
                             System.err.println("Error issuing ticket for " + userId + ": " + e.getMessage());
@@ -251,6 +255,7 @@ public class RedisTicketServiceConcurrencyTest {
     public void testConcurrentRollbackFailures() throws InterruptedException {
         // TicketPublisher 모킹을 재설정
         reset(ticketPublisher);
+        Long eventId = 1L; // 테스트용 이벤트 ID 추가
 
         // 인위적 실패와 롤백 문제를 시뮬레이션
         doAnswer(invocation -> {
@@ -279,7 +284,7 @@ public class RedisTicketServiceConcurrencyTest {
                         startLatch.await();
 
                         try {
-                            redisTicketService.issueTicket(UserId.of(userId));
+                            redisTicketService.issueTicket(UserId.of(userId), eventId);
                             successCount.incrementAndGet();
                         } catch (Exception e) {
                             failureCount.incrementAndGet();
@@ -312,7 +317,4 @@ public class RedisTicketServiceConcurrencyTest {
             reset(ticketPublisher);
         }
     }
-
-
-
 }
