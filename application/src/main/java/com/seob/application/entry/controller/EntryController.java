@@ -1,6 +1,5 @@
 package com.seob.application.entry.controller;
 
-import com.seob.application.entry.controller.dto.EntryCreateRequest;
 import com.seob.application.entry.controller.dto.EntryResponse;
 import com.seob.application.entry.controller.dto.ParticipantEntryResponse;
 import com.seob.application.entry.controller.dto.UserEntryResponse;
@@ -31,8 +30,7 @@ public class EntryController {
     @PostMapping("/events/{eventId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<EntryResponse> applyToEvent(
-            @PathVariable Long eventId,
-            @RequestBody(required = false) EntryCreateRequest request) {
+            @PathVariable Long eventId) {
         
         EntryResponse response = entryApplicationService.applyToEventWithoutTicket(eventId);
 
