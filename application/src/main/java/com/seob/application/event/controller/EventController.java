@@ -1,5 +1,6 @@
 package com.seob.application.event.controller;
 
+import com.seob.application.common.dto.PageResponse;
 import com.seob.application.event.dto.EventCreateRequestDto;
 import com.seob.application.event.dto.EventResponseDto;
 import com.seob.application.event.dto.EventStatusUpdateRequestDto;
@@ -12,12 +13,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequestMapping("/events")
@@ -25,7 +30,6 @@ import java.util.List;
 @Tag(name = "이벤트", description = "이벤트 관리 API")
 public class EventController {
     private final EventApplicationService eventApplicationService;
-    
     
     @Operation(
         summary = "이벤트 생성",
@@ -45,7 +49,6 @@ public class EventController {
         return ResponseEntity.ok(responseDto);
     }
     
-
     @Operation(
         summary = "이벤트 상태 업데이트",
         description = "지정된 이벤트의 상태를 업데이트합니다.",
@@ -57,6 +60,7 @@ public class EventController {
         }
     )
     @PatchMapping("/{eventId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> updateEventStatus(
         @PathVariable Long eventId,
         @RequestBody EventStatusUpdateRequestDto requestDto
@@ -65,21 +69,23 @@ public class EventController {
         return ResponseEntity.ok(responseDto);
     }
     
-
     @Operation(
         summary = "모든 이벤트 조회",
-        description = "모든 이벤트 목록을 조회합니다.",
+        description = "모든 이벤트 목록을 페이지네이션과 함께 조회합니다. 상태 및 날짜로 필터링 가능합니다.",
         responses = {
             @ApiResponse(responseCode = "200", description = "이벤트 목록 조회 성공")
         }
     )
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        List<EventResponseDto> events = eventApplicationService.getAllEvents();
-        return ResponseEntity.ok(events);
+    public ResponseEntity<PageResponse<EventResponseDto>> getAllEvents(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) LocalDate fromDate,
+            @RequestParam(required = false) LocalDate toDate,
+            @PageableDefault(size = 20, sort = "eventDate", direction = DESC) Pageable pageable) {
+        Page<EventResponseDto> events = eventApplicationService.getAllEvents(status, fromDate, toDate, pageable);
+        return ResponseEntity.ok(PageResponse.of(events));
     }
     
-
     @Operation(
         summary = "이벤트 상세 조회",
         description = "특정 ID의 이벤트 상세 정보를 조회합니다.",
@@ -95,7 +101,6 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
     
-
     @Operation(
         summary = "이벤트 표시 정보 조회",
         description = "특정 이벤트의 표시용 정보를 조회합니다.",
