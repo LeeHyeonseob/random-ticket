@@ -1,5 +1,6 @@
 package com.seob.application.user.controller;
 
+import com.seob.application.common.dto.PageResponse;
 import com.seob.application.user.controller.dto.UserProfileRequest;
 import com.seob.application.user.controller.dto.UserProfileResponse;
 import com.seob.application.user.controller.dto.UserTicketResponse;
@@ -11,14 +12,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/users")
@@ -27,7 +26,6 @@ import java.util.List;
 public class UserController {
 
     private final UserApplicationService userApplicationService;
-
 
     @Operation(
         summary = "내 프로필 조회",
@@ -45,7 +43,6 @@ public class UserController {
         UserProfileResponse profile = userApplicationService.getCurrentUserProfile();
         return ResponseEntity.ok(profile);
     }
-
 
     @Operation(
         summary = "프로필 업데이트",
@@ -65,10 +62,9 @@ public class UserController {
         return ResponseEntity.ok(updatedProfile);
     }
 
-
     @Operation(
         summary = "내 티켓 목록 조회",
-        description = "현재 로그인한 사용자의 티켓 목록을 조회합니다. 인증이 필요합니다.",
+        description = "현재 로그인한 사용자의 티켓 목록을 페이지네이션으로 조회합니다. 인증이 필요합니다.",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(responseCode = "200", description = "티켓 목록 조회 성공"),
@@ -77,11 +73,13 @@ public class UserController {
     )
     @GetMapping("/me/tickets")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<UserTicketResponse>> getUserTickets() {
-        List<UserTicketResponse> tickets = userApplicationService.getUserTickets();
-        return ResponseEntity.ok(tickets);
+    public ResponseEntity<PageResponse<UserTicketResponse>> getUserTickets(
+            @RequestParam(required = false) Boolean used,
+            @RequestParam(required = false) Boolean expired,
+            @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
+        Page<UserTicketResponse> tickets = userApplicationService.getUserTickets(used, expired, pageable);
+        return ResponseEntity.ok(PageResponse.of(tickets));
     }
-
 
     @Operation(
         summary = "사용자 프로필 조회",
