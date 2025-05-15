@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class EventController {
         description = "새로운 이벤트를 생성합니다. 관리자 권한이 필요합니다.",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
-            @ApiResponse(responseCode = "200", description = "이벤트 생성 성공", 
+            @ApiResponse(responseCode = "201", description = "이벤트 생성 성공",
                          content = @Content(schema = @Schema(implementation = EventResponseDto.class))),
             @ApiResponse(responseCode = "403", description = "권한 없음"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
@@ -46,7 +47,7 @@ public class EventController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventCreateRequestDto requestDto) {
         EventResponseDto responseDto = eventApplicationService.createEvent(requestDto);
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
     
     @Operation(

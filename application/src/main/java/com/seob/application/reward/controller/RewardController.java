@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class RewardController {
         description = "특정 이벤트에 보상을 등록합니다. 관리자 권한이 필요합니다.",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
-            @ApiResponse(responseCode = "200", description = "보상 등록 성공", 
+            @ApiResponse(responseCode = "201", description = "보상 등록 성공",
                         content = @Content(schema = @Schema(implementation = RewardResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "403", description = "권한 없음"),
@@ -44,7 +45,7 @@ public class RewardController {
                 request.rewardName(),
                 request.rewardUrl()
         );
-        return ResponseEntity.ok(RewardResponse.of(rewardDomain));
+        return ResponseEntity.status(HttpStatus.CREATED).body(RewardResponse.of(rewardDomain));
     }
 
 
