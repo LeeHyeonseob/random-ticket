@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/tickets")
 @RequiredArgsConstructor
 @Tag(name = "티켓", description = "티켓 발급 API")
 public class TicketController {
@@ -40,7 +39,7 @@ public class TicketController {
             @ApiResponse(responseCode = "429", description = "티켓 발급 한도 초과")
         }
     )
-    @PostMapping("/events/{eventId}/issue")
+    @PostMapping("/events/{eventId}/tickets")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TicketResponseDto> issueTicket(@PathVariable Long eventId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         TicketResponseDto responseDto = ticketApplicationService.issueTicket(eventId, userDetails);
