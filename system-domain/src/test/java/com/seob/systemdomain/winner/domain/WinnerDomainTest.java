@@ -8,113 +8,155 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class WinnerDomainTest {
 
     @Test
-    @DisplayName("당첨자 생성")
-    void createWinner() {
+    @DisplayName("Winner 도메인 객체 생성 테스트")
+    void createWinnerTest() {
         // given
-        String userId = "user123";
+        UserId userId = UserId.of("test-user-id");
         Long eventId = 1L;
-        Long rewardId = 456L;
-        
+        Long rewardId = 2L;
+        Long entryId = 3L;
+
         // when
-        WinnerDomain winnerDomain = WinnerDomain.create(UserId.of(userId), eventId, rewardId);
-        
+        WinnerDomain winner = WinnerDomain.create(userId, eventId, rewardId, entryId);
+
         // then
-        assertThat(winnerDomain).isNotNull();
-        assertThat(winnerDomain.getId()).isNull(); // DB 저장 전이므로 ID는 null
-        assertThat(winnerDomain.getUserId().getValue()).isEqualTo(userId);
-        assertThat(winnerDomain.getEventId()).isEqualTo(eventId);
-        assertThat(winnerDomain.getRewardId()).isEqualTo(rewardId);
-        assertThat(winnerDomain.getStatus()).isEqualTo(RewardStatus.PENDING);
-        assertThat(winnerDomain.getSentAt()).isNull(); // 아직 발송되지 않음
+        assertThat(winner).isNotNull();
+        assertThat(winner.getUserId()).isEqualTo(userId);
+        assertThat(winner.getEventId()).isEqualTo(eventId);
+        assertThat(winner.getRewardId()).isEqualTo(rewardId);
+        assertThat(winner.getEntryId()).isEqualTo(entryId);
+        assertThat(winner.getStatus()).isEqualTo(RewardStatus.PENDING);
+        assertThat(winner.getSentAt()).isNull();
     }
-    
+
     @Test
-    @DisplayName("당첨 상태 변경 - 발송 완료")
-    void changeStatusToComplete() {
+    @DisplayName("Winner 도메인 객체 생성 테스트 - entryId 없이")
+    void createWinnerWithoutEntryIdTest() {
         // given
-        String userId = "user123";
+        UserId userId = UserId.of("test-user-id");
         Long eventId = 1L;
-        Long rewardId = 456L;
-        
-        WinnerDomain winnerDomain = WinnerDomain.create(UserId.of(userId), eventId, rewardId);
-        assertThat(winnerDomain.getStatus()).isEqualTo(RewardStatus.PENDING);
-        assertThat(winnerDomain.getSentAt()).isNull();
-        
+        Long rewardId = 2L;
+
         // when
-        winnerDomain.send();
-        
+        WinnerDomain winner = WinnerDomain.create(userId, eventId, rewardId);
+
         // then
-        assertThat(winnerDomain.getStatus()).isEqualTo(RewardStatus.COMPLETE);
-        assertThat(winnerDomain.getSentAt()).isNotNull(); // 발송 시간이 기록됨
+        assertThat(winner).isNotNull();
+        assertThat(winner.getUserId()).isEqualTo(userId);
+        assertThat(winner.getEventId()).isEqualTo(eventId);
+        assertThat(winner.getRewardId()).isEqualTo(rewardId);
+        assertThat(winner.getEntryId()).isNull();
+        assertThat(winner.getStatus()).isEqualTo(RewardStatus.PENDING);
     }
-    
+
     @Test
-    @DisplayName("당첨 상태 변경 - 실패")
-    void changeStatusToFailed() {
-        // given
-        String userId = "user123";
-        Long eventId = 1L;
-        Long rewardId = 456L;
-        
-        WinnerDomain winnerDomain = WinnerDomain.create(UserId.of(userId), eventId, rewardId);
-        assertThat(winnerDomain.getStatus()).isEqualTo(RewardStatus.PENDING);
-        
-        // when
-        winnerDomain.markAsFailed();
-        
-        // then
-        assertThat(winnerDomain.getStatus()).isEqualTo(RewardStatus.FAILED);
-    }
-    
-    @Test
-    @DisplayName("기존 당첨 정보 로드")
-    void loadExistingWinner() {
+    @DisplayName("Winner 도메인 객체 정적 팩토리 메서드 테스트")
+    void winnerOfTest() {
         // given
         Long id = 1L;
-        String userId = "user123";
-        Long eventId = 1L;
-        Long rewardId = 456L;
-        RewardStatus status = RewardStatus.COMPLETE;
+        String userId = "test-user-id";
+        Long eventId = 2L;
+        Long rewardId = 3L;
+        Long entryId = 4L;
+        RewardStatus status = RewardStatus.PENDING;
         LocalDateTime sentAt = LocalDateTime.now();
-        
+
         // when
-        WinnerDomain winnerDomain = WinnerDomain.of(id, userId, eventId, rewardId, status, sentAt);
-        
+        WinnerDomain winner = WinnerDomain.of(id, userId, eventId, rewardId, entryId, status, sentAt);
+
         // then
-        assertThat(winnerDomain.getId()).isEqualTo(id);
-        assertThat(winnerDomain.getUserId().getValue()).isEqualTo(userId);
-        assertThat(winnerDomain.getEventId()).isEqualTo(eventId);
-        assertThat(winnerDomain.getRewardId()).isEqualTo(rewardId);
-        assertThat(winnerDomain.getStatus()).isEqualTo(status);
-        assertThat(winnerDomain.getSentAt()).isEqualTo(sentAt);
+        assertThat(winner).isNotNull();
+        assertThat(winner.getId()).isEqualTo(id);
+        assertThat(winner.getUserId().getValue()).isEqualTo(userId);
+        assertThat(winner.getEventId()).isEqualTo(eventId);
+        assertThat(winner.getRewardId()).isEqualTo(rewardId);
+        assertThat(winner.getEntryId()).isEqualTo(entryId);
+        assertThat(winner.getStatus()).isEqualTo(status);
+        assertThat(winner.getSentAt()).isEqualTo(sentAt);
+    }
+
+    @Test
+    @DisplayName("Winner 도메인 객체 정적 팩토리 메서드 테스트 - entryId 없이")
+    void winnerOfWithoutEntryIdTest() {
+        // given
+        Long id = 1L;
+        String userId = "test-user-id";
+        Long eventId = 2L;
+        Long rewardId = 3L;
+        RewardStatus status = RewardStatus.PENDING;
+        LocalDateTime sentAt = LocalDateTime.now();
+
+        // when
+        WinnerDomain winner = WinnerDomain.of(id, userId, eventId, rewardId, status, sentAt);
+
+        // then
+        assertThat(winner).isNotNull();
+        assertThat(winner.getId()).isEqualTo(id);
+        assertThat(winner.getUserId().getValue()).isEqualTo(userId);
+        assertThat(winner.getEventId()).isEqualTo(eventId);
+        assertThat(winner.getRewardId()).isEqualTo(rewardId);
+        assertThat(winner.getEntryId()).isNull();
+        assertThat(winner.getStatus()).isEqualTo(status);
+        assertThat(winner.getSentAt()).isEqualTo(sentAt);
+    }
+
+    @Test
+    @DisplayName("보상 전송 완료 처리 테스트")
+    void sendTest() {
+        // given
+        WinnerDomain winner = WinnerDomain.create(
+                UserId.of("test-user-id"), 1L, 2L);
+        assertThat(winner.getSentAt()).isNull();
+        assertThat(winner.getStatus()).isEqualTo(RewardStatus.PENDING);
+
+        // when
+        winner.send();
+
+        // then
+        assertThat(winner.getStatus()).isEqualTo(RewardStatus.COMPLETE);
+        assertThat(winner.getSentAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("보상 전송 실패 처리 테스트")
+    void markAsFailedTest() {
+        // given
+        WinnerDomain winner = WinnerDomain.create(
+                UserId.of("test-user-id"), 1L, 2L);
+        assertThat(winner.getStatus()).isEqualTo(RewardStatus.PENDING);
+
+        // when
+        winner.markAsFailed();
+
+        // then
+        assertThat(winner.getStatus()).isEqualTo(RewardStatus.FAILED);
     }
     
     @Test
-    @DisplayName("당첨자 정보 비교")
-    void compareWinners() {
+    @DisplayName("당첨자 정보 비교 테스트")
+    void compareWinnersTest() {
         // given
-        String userId = "user123";
+        UserId userId = UserId.of("test-user-id");
         Long eventId = 1L;
-        Long rewardId = 456L;
+        Long rewardId = 2L;
         
         // when
-        WinnerDomain winner1 = WinnerDomain.create(UserId.of(userId), eventId, rewardId);
-        WinnerDomain winner2 = WinnerDomain.create(UserId.of(userId), eventId, rewardId);
+        WinnerDomain winner1 = WinnerDomain.create(userId, eventId, rewardId);
+        WinnerDomain winner2 = WinnerDomain.create(userId, eventId, rewardId);
         
         // then
         // ID는 null로 초기화됨(DB 저장 시 할당)
-        assertNull(winner1.getId());
-        assertNull(winner2.getId());
+        assertThat(winner1.getId()).isNull();
+        assertThat(winner2.getId()).isNull();
         
         // 동일한 사용자, 이벤트, 리워드이지만 다른 당첨자 인스턴스
-        assertEquals(winner1.getUserId(), winner2.getUserId());
-        assertEquals(winner1.getEventId(), winner2.getEventId());
-        assertEquals(winner1.getRewardId(), winner2.getRewardId());
-        assertEquals(winner1.getStatus(), winner2.getStatus());
+        assertThat(winner1.getUserId()).isEqualTo(winner2.getUserId());
+        assertThat(winner1.getEventId()).isEqualTo(winner2.getEventId());
+        assertThat(winner1.getRewardId()).isEqualTo(winner2.getRewardId());
+        assertThat(winner1.getStatus()).isEqualTo(winner2.getStatus());
     }
 }
