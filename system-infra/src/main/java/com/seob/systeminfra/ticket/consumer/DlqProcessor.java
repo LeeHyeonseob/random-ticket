@@ -21,19 +21,19 @@ public class DlqProcessor {
     private final StringRedisTemplate redisTemplate;
     private final TicketConsumer ticketConsumer;
 
-    @Value("${spring.redis.stream.dlq.name}")
+    @Value("${app.redis.stream.dlq.name}")
     private String dlqStream;
 
-    @Value("${spring.redis.stream.dlq.group}")
+    @Value("${app.redis.stream.dlq.group}")
     private String dlqGroup;
 
-    @Value("${spring.redis.stream.dlq.consumer:dlq_consumer}")
+    @Value("${app.redis.stream.dlq.consumer:dlq_consumer}")
     private String dlqConsumer;
 
-    @Value("${spring.redis.dlq.process-count:10}")
+    @Value("${app.redis.dlq.process-count:10}")
     private int processCount;
 
-    @Value("${spring.redis.dlq.block-seconds:5}")
+    @Value("${app.redis.dlq.block-seconds:5}")
     private int blockSeconds;
 
     public DlqProcessor(
@@ -43,7 +43,7 @@ public class DlqProcessor {
         this.ticketConsumer = ticketConsumer;
     }
 
-    @Scheduled(fixedDelayString = "${spring.redis.dlq.schedule-delay:60000}")
+    @Scheduled(fixedDelayString = "${app.redis.dlq.schedule-delay:60000}")
     public void processDlqMessages() {
         log.info("DLQ 처리 스케줄러 실행...");
 

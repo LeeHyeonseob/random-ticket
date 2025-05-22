@@ -17,7 +17,7 @@ public class TicketPublisher {
 
     public TicketPublisher(
             StringRedisTemplate stringRedisTemplate,
-            @Value("${redis.ticket.stream-key}") String streamKey) {
+            @Value("${app.redis.ticket.stream-key}") String streamKey) {
         this.redisTemplate = stringRedisTemplate;
         this.streamKey = streamKey;
     }

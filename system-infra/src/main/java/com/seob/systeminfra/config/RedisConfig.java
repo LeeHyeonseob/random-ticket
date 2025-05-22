@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -23,23 +22,22 @@ import java.time.Duration;
 @Slf4j
 public class RedisConfig {
 
-
-    @Value("${spring.redis.stream.ticket.name}")
+    @Value("${app.redis.stream.ticket.name}")
     private String ticketStream;
 
-    @Value("${spring.redis.stream.ticket.group}")
+    @Value("${app.redis.stream.ticket.group}")
     private String ticketGroup;
 
-    @Value("${spring.redis.stream.ticket.consumer}")
+    @Value("${app.redis.stream.ticket.consumer}")
     private String ticketConsumerName;
 
-    @Value("${spring.redis.stream.dlq.name}")
+    @Value("${app.redis.stream.dlq.name}")
     private String dlqStream;
 
-    @Value("${spring.redis.stream.dlq.group}")
+    @Value("${app.redis.stream.dlq.group}")
     private String dlqGroup;
 
-    @Value("${spring.redis.poll-timeout}")
+    @Value("${app.redis.poll-timeout}")
     private long pollTimeout;
 
     @Bean

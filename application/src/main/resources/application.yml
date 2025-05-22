@@ -1,6 +1,3 @@
-# 통합된 애플리케이션 설정
-# 환경 변수로 설정값을 제어하는 단일 설정 파일
-
 # 서버 설정
 server:
   port: ${SERVER_PORT:8080}
@@ -10,31 +7,65 @@ spring:
   # 데이터베이스 설정
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/random_ticket?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   
   # JPA 설정
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_DDL_AUTO:update}
-    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+      ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: ${SPRING_JPA_FORMAT_SQL:false}
+        format_sql: false
   
-  # Redis 설정
+  # Redis 기본 설정 (Spring Boot 표준)
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      connect-timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  # Redisson 설정 (Spring Boot Starter에서 자동 인식)
   redis:
-    host: ${SPRING_REDIS_HOST:localhost}
-    port: ${SPRING_REDIS_PORT:6379}
     redisson:
       config: |
         singleServerConfig:
           address: "redis://${SPRING_REDIS_HOST:localhost}:${SPRING_REDIS_PORT:6379}"
-          connectionMinimumIdleSize: ${REDIS_CONN_MIN_IDLE:1}
-          connectionPoolSize: ${REDIS_CONN_POOL_SIZE:2}
-    # Redis 스트림 설정
+          password: ${REDIS_PASSWORD:}
+          connectionMinimumIdleSize: 1
+          connectionPoolSize: 2
+          timeout: 2000
+          retryAttempts: 3
+          retryInterval: 1500
+  
+  # 메일 설정  
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# 애플리케이션별 Redis 커스텀 설정
+app:
+  redis:
+    # Stream 설정
     stream:
       ticket:
         name: ${REDIS_STREAM_TICKET_NAME:ticket_stream}
@@ -44,36 +75,30 @@ spring:
         name: ${REDIS_STREAM_DLQ_NAME:ticket_stream_dlq}
         group: ${REDIS_STREAM_DLQ_GROUP:dlq_group}
         consumer: ${REDIS_STREAM_DLQ_CONSUMER:dlq_consumer}
-    poll-timeout: ${REDIS_POLL_TIMEOUT:100}
-    max-retry: ${REDIS_MAX_RETRY:3}
-    dlq:
-      process-count: ${REDIS_DLQ_PROCESS_COUNT:10}
-      block-seconds: ${REDIS_DLQ_BLOCK_SECONDS:5}
-      schedule-delay: ${REDIS_DLQ_SCHEDULE_DELAY:60000}
+    
+    # Ticket 관련 설정
     ticket:
       issued-set: ${REDIS_TICKET_ISSUED_SET:issued_tickets}
       counter-key: ${REDIS_TICKET_COUNTER_KEY:ticket_counter}
       max-tickets: ${REDIS_TICKET_MAX_TICKETS:100}
       lock-key: ${REDIS_TICKET_LOCK_KEY:ticket_issuance_lock}
+      stream-key: ${REDIS_STREAM_TICKET_NAME:ticket_stream}
       lock-wait-time: ${REDIS_TICKET_LOCK_WAIT_TIME:5}
       lock-lease-time: ${REDIS_TICKET_LOCK_LEASE_TIME:10}
-
-  # 메일 설정  
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:your_mail_username}
-    password: ${MAIL_PASSWORD:your_mail_password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+    
+    # 공통 설정
+    poll-timeout: ${REDIS_STREAM_POLL_TIMEOUT:100}
+    max-retry: ${REDIS_STREAM_MAX_RETRY:3}
+    
+    # DLQ 설정
+    dlq:
+      process-count: ${REDIS_DLQ_PROCESS_COUNT:10}
+      block-seconds: ${REDIS_DLQ_BLOCK_SECONDS:5}
+      schedule-delay: ${REDIS_DLQ_SCHEDULE_DELAY:60000}
 
 # JWT 설정
 jwt:
-  secret: ${JWT_SECRET:secret_key_for_development}
+  secret: ${JWT_SECRET}
   access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:3600000} # 1시간
   refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY:1209600000} # 2주
 
@@ -83,31 +108,26 @@ cloud:
     region:
       static: ${AWS_REGION:ap-northeast-2}
     credentials:
-      access-key: ${AWS_ACCESS_KEY:dummy_access_key}
-      secret-key: ${AWS_SECRET_KEY:dummy_secret_key}
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
     s3:
-      bucket-name: ${AWS_S3_BUCKET_NAME:random-ticket-bucket}
-
-# Redis 추가 설정
-redis:
-  ticket:
-    stream-key: ${REDIS_STREAM_TICKET_NAME:ticket_stream}
+      bucket-name: ${AWS_S3_BUCKET_NAME}
 
 # 로깅 설정
 logging:
   level:
-    org.hibernate.SQL: ${LOGGING_LEVEL_HIBERNATE:info}
-    org.hibernate.type.descriptor.sql: ${LOGGING_LEVEL_HIBERNATE_TYPE:info}
-    com.seob: ${LOGGING_LEVEL_APP:info}
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql: info
+    com.seob: info
 
 # Actuator 설정
 management:
   endpoints:
     web:
       exposure:
-        include: ${ACTUATOR_ENDPOINTS:health,info}
+        include: health,info
   endpoint:
     health:
-      show-details: ${ACTUATOR_HEALTH_DETAILS:always}
+      show-details: always
       probes:
-        enabled: ${ACTUATOR_PROBES:true}
+        enabled: true

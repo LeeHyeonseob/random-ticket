@@ -23,16 +23,16 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
     private final TicketRepository ticketRepository;
     private final StringRedisTemplate redisTemplate;
 
-    @Value("${spring.redis.stream.ticket.name}")
+    @Value("${app.redis.stream.ticket.name}")
     private String streamKey;
 
-    @Value("${spring.redis.stream.ticket.group}")
+    @Value("${app.redis.stream.ticket.group}")
     private String groupName;
 
-    @Value("${spring.redis.stream.dlq.name}")
+    @Value("${app.redis.stream.dlq.name}")
     private String dlqStreamKey;
 
-    @Value("${spring.redis.max-retry:3}")
+    @Value("${app.redis.max-retry:3}")
     private int maxRetry;
 
     public TicketConsumer(

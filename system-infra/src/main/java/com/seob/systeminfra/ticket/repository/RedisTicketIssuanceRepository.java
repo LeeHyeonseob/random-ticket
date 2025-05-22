@@ -14,13 +14,13 @@ import org.springframework.stereotype.Repository;
 public class RedisTicketIssuanceRepository implements TicketIssuanceRepository {
     private final RedisTemplate<String, Object> redisTemplate;
     
-    @Value("${spring.redis.ticket.issued-set}")
+    @Value("${app.redis.ticket.issued-set}")
     private String ticketIssuedSet;
     
-    @Value("${spring.redis.ticket.counter-key}")
+    @Value("${app.redis.ticket.counter-key}")
     private String ticketCounterKey;
     
-    @Value("${spring.redis.ticket.max-tickets}")
+    @Value("${app.redis.ticket.max-tickets}")
     private int maxTickets;
     
     @Override

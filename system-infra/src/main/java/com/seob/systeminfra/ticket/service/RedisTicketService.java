@@ -27,13 +27,13 @@ public class RedisTicketService implements TicketService {
     private final RedissonClient redissonClient;
     private final TicketIssuanceRepository issuanceRepository;
     
-    @Value("${spring.redis.ticket.lock-key}")
+    @Value("${app.redis.ticket.lock-key}")
     private String ticketLock;
     
-    @Value("${spring.redis.ticket.lock-wait-time}")
+    @Value("${app.redis.ticket.lock-wait-time}")
     private long lockWaitTime;
     
-    @Value("${spring.redis.ticket.lock-lease-time}")
+    @Value("${app.redis.ticket.lock-lease-time}")
     private long lockLeaseTime;
     
     @Override
