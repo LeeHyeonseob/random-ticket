@@ -1,20 +1,24 @@
 package com.seob.systeminfra.file;
 
 import com.seob.systemcore.error.exception.FileUploadException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+import static software.amazon.awssdk.core.sync.RequestBody.fromInputStream;
+
+@Slf4j
 @Service
 public class S3FileUploadService implements FileUploadService {
+    
     private final S3Client s3Client;
     private final String bucketName;
 
@@ -25,21 +29,25 @@ public class S3FileUploadService implements FileUploadService {
 
     @Override
     public String uploadFile(MultipartFile file) {
-        validateFile(file);
-        String fileName = generateUniqueFileName(file.getOriginalFilename());
+        String fileName = generateUniqueFileName(file.getOriginalFilename()); // 파일 이름 생성
 
+        //파일이 있을 때만
         try (InputStream inputStream = file.getInputStream()) {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileName)
-                    .acl(ObjectCannedACL.PUBLIC_READ)
                     .contentType(file.getContentType())
                     .build();
 
-            s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromInputStream(inputStream, file.getSize()));
+            s3Client.putObject(putObjectRequest, 
+                    fromInputStream(inputStream, file.getSize()));
 
-            return getFileUrl(fileName);
+            String fileUrl = getFileUrl(fileName);
+            log.info("파일 업로드 성공: {}", fileUrl);
+            return fileUrl;
+            
         } catch (IOException e) {
+            log.error("파일 업로드 실패: {}", e.getMessage(), e);
             throw FileUploadException.FILE_UPLOAD_FAILED;
         }
     }
@@ -52,32 +60,49 @@ public class S3FileUploadService implements FileUploadService {
                     .bucket(bucketName)
                     .key(key)
                     .build();
+            
             s3Client.deleteObject(deleteObjectRequest);
+            log.info("파일 삭제 성공: {}", fileUrl);
+            
         } catch (Exception e) {
+            log.error("파일 삭제 실패: {}", e.getMessage(), e);
             throw FileUploadException.FILE_DELETE_FAILED;
         }
     }
 
-    private void validateFile(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw FileUploadException.INVALID_FILE_FORMAT;
-        }
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw FileUploadException.INVALID_FILE_FORMAT;
-        }
-    }
-
+    //파일 이름 생성
     private String generateUniqueFileName(String originalFilename) {
-        return "rewards/" + UUID.randomUUID().toString() + "-" +
-                (originalFilename != null ? originalFilename : "unknown"); //비어있으면 unknown
+        String extension = getFileExtension(originalFilename);
+        String uuid = UUID.randomUUID().toString();
+        return "rewards/" + uuid + extension;
     }
 
+    private String getFileExtension(String originalFilename) {
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            return "";
+        }
+        return originalFilename.substring(originalFilename.lastIndexOf("."));
+    }
+
+    //파일 url 가져오기
     private String getFileUrl(String fileName) {
         return "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
     }
 
+    //url에서 키 추출
     private String extractKeyFromUrl(String fileUrl) {
-        return fileUrl.substring(fileUrl.indexOf(bucketName) + bucketName.length() + 1);
+        try {
+            String bucketDomain = bucketName + ".s3.amazonaws.com/";
+            int keyStartIndex = fileUrl.indexOf(bucketDomain);
+            if (keyStartIndex == -1) {
+                throw FileUploadException.INVALID_FILE_URL;
+            }
+            return fileUrl.substring(keyStartIndex + bucketDomain.length());
+        } catch (FileUploadException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("S3 URL에서 키 추출 실패: {}", fileUrl, e);
+            throw FileUploadException.INVALID_FILE_URL;
+        }
     }
 }
