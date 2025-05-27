@@ -48,6 +48,11 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return eventJpaRepository.existsById(id);
+    }
+
+    @Override
     public EventStatus findStatusById(Long id) {
         QEventEntity event = QEventEntity.eventEntity;
         
@@ -94,7 +99,7 @@ public class EventRepositoryImpl implements EventRepository {
                         event.status.stringValue(),
                         event.eventDate))
                 .from(event)
-                .fetch(); //
+                .fetch();
     }
     
     @Override
@@ -102,7 +107,7 @@ public class EventRepositoryImpl implements EventRepository {
         QEventEntity event = QEventEntity.eventEntity;
 
         // 동적 쿼리를 위한 조건 생성
-        BooleanExpression statusCondition = status != null ? 
+        BooleanExpression statusCondition = status != null ?
                 event.status.eq(EventStatus.valueOf(status)) : null;
         BooleanExpression fromDateCondition = fromDate != null ? 
                 event.eventDate.goe(fromDate) : null;
@@ -164,7 +169,7 @@ public class EventRepositoryImpl implements EventRepository {
         return result;
     }
 
-    EventEntity toEntity(EventDomain eventDomain) {
+    private EventEntity toEntity(EventDomain eventDomain) {
         return new EventEntity(
                 eventDomain.getId(),
                 eventDomain.getName(),
@@ -175,7 +180,7 @@ public class EventRepositoryImpl implements EventRepository {
         );
     }
 
-    EventDomain toDomain(EventEntity eventEntity) {
+    private EventDomain toDomain(EventEntity eventEntity) {
         return EventDomain.of(
                 eventEntity.getId(),
                 eventEntity.getName(),

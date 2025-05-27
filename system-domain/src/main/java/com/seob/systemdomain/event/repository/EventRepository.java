@@ -16,6 +16,8 @@ public interface EventRepository {
 
     List<EventDomain> findAll();
 
+    boolean existsById(Long id);
+
     EventStatus findStatusById(Long id);
 
     Long findIdByDate(LocalDate date);

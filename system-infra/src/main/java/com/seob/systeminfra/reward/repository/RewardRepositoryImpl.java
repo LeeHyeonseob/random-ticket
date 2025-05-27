@@ -6,6 +6,7 @@ import com.seob.systemdomain.reward.repository.RewardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,7 +14,6 @@ import java.util.Optional;
 public class RewardRepositoryImpl implements RewardRepository {
 
     private final RewardJpaRepository rewardJpaRepository;
-
 
     @Override
     public RewardDomain save(RewardDomain rewardDomain) {
@@ -32,7 +32,25 @@ public class RewardRepositoryImpl implements RewardRepository {
         return rewardJpaRepository.findByEventId(eventId).map(this::toDomain);
     }
 
-    RewardEntity toEntity(RewardDomain rewardDomain) {
+    @Override
+    public List<RewardDomain> findAll() {
+        return rewardJpaRepository.findAll()
+                .stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        rewardJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByEventId(Long eventId) {
+        return rewardJpaRepository.existsByEventId(eventId);
+    }
+
+    private RewardEntity toEntity(RewardDomain rewardDomain) {
         return new RewardEntity(
                 rewardDomain.getEventId(),
                 rewardDomain.getName(),
@@ -41,7 +59,7 @@ public class RewardRepositoryImpl implements RewardRepository {
         );
     }
 
-    RewardDomain toDomain(RewardEntity rewardEntity) {
+    private RewardDomain toDomain(RewardEntity rewardEntity) {
         return RewardDomain.of(
                 rewardEntity.getId(),
                 rewardEntity.getEventId(),

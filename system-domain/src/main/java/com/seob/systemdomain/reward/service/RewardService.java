@@ -2,9 +2,16 @@ package com.seob.systemdomain.reward.service;
 
 import com.seob.systemdomain.reward.domain.RewardDomain;
 
+import java.util.List;
 
 public interface RewardService {
-    RewardDomain createReward(Long eventId,String rewardName, String resourceUrl);
-    // 보상 미리보기 정보 조회 (사용자용)
+    RewardDomain createReward(Long eventId, String rewardName, String resourceUrl);
+
     RewardDomain getRewardByEventId(Long eventId);
+
+    List<RewardDomain> getAllRewards();
+
+    RewardDomain updateReward(Long rewardId, String rewardName, String resourceUrl);
+
+    void deleteReward(Long rewardId);
 }
