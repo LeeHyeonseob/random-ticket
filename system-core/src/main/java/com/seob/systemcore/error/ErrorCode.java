@@ -48,11 +48,16 @@ public enum ErrorCode {
     INVALID_FILE_FORMAT(400, "F003", "Invalid file format"),
     FILE_SIZE_EXCEEDED(400, "F004", "File size exceeded"),
     FILE_NOT_FOUND(404, "F005", "File not found"),
+    INVALID_FILE_URL(400, "F006", "Invalid file URL format"),
 
     //보상 관련 에러
     REWARD_NOT_FOUND(404, "RW001", "Reward not found"),
     REWARD_ALREADY_EXISTS(400, "RW002", "Reward already exists for this event"),
     NO_REWARD_IN_EVENT(400, "RW003", "No reward in event"),
+    INVALID_REWARD_NAME(400, "RW004", "Invalid reward name"),
+    INVALID_REWARD_URL(400, "RW005", "Invalid reward URL"),
+    INVALID_EVENT_ID(400, "RW006", "Invalid event ID"),
+    EVENT_NOT_FOUND_FOR_REWARD(404, "RW007", "Event not found for reward creation"),
 
     //당첨자 관련 에러
     WINNER_NOT_FOUND(404, "W001", "Winner not found"),
