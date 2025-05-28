@@ -27,11 +27,11 @@ services:
       - REDIS_STREAM_TICKET_CONSUMER=${REDIS_STREAM_TICKET_CONSUMER:-ticket_consumer}
       - REDIS_STREAM_DLQ_NAME=${REDIS_STREAM_DLQ_NAME:-ticket_stream_dlq}
       - REDIS_STREAM_DLQ_GROUP=${REDIS_STREAM_DLQ_GROUP:-dlq_group}
-      - REDIS_STREAM_DLQ_CONSUMER=${REDIS_STREAM_DLQ_CONSUMER:-dlq_consumer}
-      - REDIS_TICKET_ISSUED_SET=${REDIS_TICKET_ISSUED_SET:-issued_tickets}
-      - REDIS_TICKET_COUNTER_KEY=${REDIS_TICKET_COUNTER_KEY:-ticket_counter}
-      - REDIS_TICKET_MAX_TICKETS=${REDIS_TICKET_MAX_TICKETS:-100}
-      - REDIS_TICKET_LOCK_KEY=${REDIS_TICKET_LOCK_KEY:-ticket_issuance_lock}
+      - REDIS_STREAM_DLQ_CONSUMER=${REDIS_STREAM_DLQ_CONSUMER}
+      - REDIS_TICKET_ISSUED_SET=${REDIS_TICKET_ISSUED_SET}
+      - REDIS_TICKET_COUNTER_KEY=${REDIS_TICKET_COUNTER_KEY}
+      - REDIS_TICKET_MAX_TICKETS=${REDIS_TICKET_MAX_TICKETS}
+      - REDIS_TICKET_LOCK_KEY=${REDIS_TICKET_LOCK_KEY}
       - REDIS_TICKET_LOCK_WAIT_TIME=${REDIS_TICKET_LOCK_WAIT_TIME:-5}
       - REDIS_TICKET_LOCK_LEASE_TIME=${REDIS_TICKET_LOCK_LEASE_TIME:-10}
       - REDIS_CONN_MIN_IDLE=${REDIS_CONN_MIN_IDLE:-1}
@@ -46,11 +46,11 @@ services:
       - AWS_REGION=${AWS_REGION:-ap-northeast-2}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME:-random-ticket-bucket}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
       
       # 메일 설정
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
     volumes:
@@ -86,10 +86,10 @@ services:
     container_name: random-ticket-mysql
     image: mysql:8.0
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "${DB_PORT}:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-1038}
-      - MYSQL_DATABASE=${DB_NAME:-random_ticket}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - mysql-data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
