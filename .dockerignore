@@ -1,19 +1,82 @@
+# Git 관련
 .git
 .gitignore
-.idea
+.gitattributes
+
+# IDE 관련
+.idea/
 *.iml
 *.iws
 *.ipr
-.gradle
+.idea/modules/
+.idea/dataSources/
+.idea/workspace.xml
+
+# Gradle 관련 (멀티모듈 대응)
+.gradle/
+*/.gradle/
 build/
+*/build/
 !application/build/libs/*.jar
+gradle/wrapper/gradle-wrapper.jar
+*/gradle/wrapper/gradle-wrapper.jar
+gradlew
+*/gradlew
+gradlew.bat
+*/gradlew.bat
+
+# 시스템 파일
 .DS_Store
-node_modules/
-Dockerfile
+**/.DS_Store
+Thumbs.db
+
+# Docker 관련
 docker-compose.yml
-.env
+docker-compose.prod.yml
+docker-compose.*.yml
 .dockerignore
+Dockerfile
+
+# 환경 설정 파일
+.env
+.env.prod
+.env.local
+.env.dev
+.env.test
+.env.*
+!.env.example
+
+# 문서 및 스크립트
 README.md
 docs/
+*.md
+
+# 데이터 및 로그
 mysql-data/
 redis-data/
+logs/
+log/
+tmp/
+temp/
+
+# 배포 스크립트
+deploy.sh
+deploy-ec2.sh
+build-and-run.sh
+*.sh
+
+# 테스트 파일
+*.csv
+test-*.csv
+*/test-*.csv
+
+# 백업 파일
+*.bak
+*.backup
+*.old
+
+# GitHub Actions
+.github/
+
+# 기타 빌드 아티팩트
+*/resolvedMainClassName

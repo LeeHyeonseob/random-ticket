@@ -49,8 +49,12 @@ logs/
 docker-compose.override.yml
 docker-compose.user.yml
 
-# Environment variables
+# Environment variables (중요: 실제 환경변수 파일들은 절대 커밋하지 말 것!)
 .env
+.env.local
+.env.prod
+.env.dev
+.env.test
 .env.*
 !.env.example
 
