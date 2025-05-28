@@ -15,6 +15,9 @@ public interface WinnerApplicationService {
 
     boolean sendReward(Long winnerId);
 
+    //수동 보상 발송
+    void sendRewardManually(Long winnerId);
+
     //조회
     List<WinnerUserDetailInfo> getWinnersByUserId(String userId);
     

@@ -76,28 +76,34 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
         return winnerService.createWinner(UserId.of(selectedUserId), eventId, rewardId);
     }
 
-    /**
-     * 1) 당첨자(WinnerDomain) 조회
-     * 2) 보상이 이미 발송된 상태면 return false
-     * 3) 사용자 이메일, 보상 URL 조회
-     * 4) 이메일 발송
-     * 5) 도메인 상태(RewardStatus)를 COMPLETE로 변경
-     *    (실패 시 FAILED 처리)
-     */
     @Override
     public boolean sendReward(Long winnerId) {
+        try {
+            executeRewardSend(winnerId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-        //당첨자 조회
+    @Override
+    public void sendRewardManually(Long winnerId) {
+        try {
+            executeRewardSend(winnerId);
+        } catch (Exception e) {
+            throw new RuntimeException("보상 발송 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    private void executeRewardSend(Long winnerId) {
         WinnerDomain winnerDomain = winnerService.findById(winnerId)
                 .orElseThrow(() -> WinnerNotFoundException.EXCEPTION);
 
-        //이미 발송된 상태인지 확인
-        if(winnerDomain.getStatus() != RewardStatus.PENDING){
-            return false;
+        if (winnerDomain.getStatus() != RewardStatus.PENDING) {
+            throw new IllegalStateException("이미 처리된 당첨자입니다. 현재 상태: " + winnerDomain.getStatus());
         }
 
-        try{
-            String userId = winnerDomain.getUserId().getValue();
+        try {
             String userEmail = userRepository.findById(winnerDomain.getUserId())
                     .orElseThrow(() -> UserNotFoundException.EXCEPTION)
                     .getEmail().getValue();
@@ -108,20 +114,14 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
 
             String eventName = eventRepository.findById(winnerDomain.getEventId()).getName();
 
-            //이메일 발송 로직 추가
             emailService.sendRewardEmail(userEmail, eventName, rewardUrl);
-
 
             winnerService.updateStatus(winnerDomain, RewardStatus.COMPLETE);
 
-            return true;
-
-        }catch(Exception e){
+        } catch (Exception e) {
             winnerService.updateStatus(winnerDomain, RewardStatus.FAILED);
-            return false;
+            throw e;
         }
-
-
     }
 
     @Override

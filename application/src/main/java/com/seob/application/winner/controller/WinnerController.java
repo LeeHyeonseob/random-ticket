@@ -173,4 +173,23 @@ public class WinnerController {
                 .toList();
         return ResponseEntity.ok(responses);
     }
+
+    //수동 보상 발송 (관리자 전용)
+    @Operation(
+        summary = "수동 보상 발송",
+        description = "특정 당첨자에게 수동으로 보상을 발송합니다. 관리자 권한이 필요합니다.",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(responseCode = "200", description = "보상 발송 성공"),
+            @ApiResponse(responseCode = "403", description = "권한 없음"),
+            @ApiResponse(responseCode = "404", description = "당첨자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "400", description = "이미 발송된 보상")
+        }
+    )
+    @PostMapping("/{winnerId}/send")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> sendReward(@PathVariable Long winnerId) {
+        winnerApplicationService.sendRewardManually(winnerId);
+        return ResponseEntity.ok().build();
+    }
 }
