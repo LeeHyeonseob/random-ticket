@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "winners")
+@Table(name = "winners", indexes = {
+    @Index(name = "idx_winner_userid", columnList = "userId"),
+    @Index(name = "idx_winner_eventid", columnList = "eventId"),
+    @Index(name = "idx_winner_entryid", columnList = "entryId", unique = true)
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WinnerEntity {
