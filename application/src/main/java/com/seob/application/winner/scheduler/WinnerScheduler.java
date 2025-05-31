@@ -16,7 +16,7 @@ public class WinnerScheduler {
     private final WinnerFacadeService winnerFacadeService;
 
     // 당첨자 선정 후 보상 보내기
-    @Scheduled(cron = "0 1 0 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void selectAndSendRewardsEachDay(){
         winnerFacadeService.processYesterdayEvent();
     }

@@ -14,7 +14,7 @@ public class EventScheduler {
     private final EventCommandService eventCommandService;
 
     //전날 이벤트 닫기
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 1 0 * * *")
     public void closeYesterdayEvent(){
         eventCommandService.closeYesterdayEvents();
     }
