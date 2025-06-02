@@ -43,10 +43,12 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         winner.sentAt
                 ))
                 .from(winner)
-                .innerJoin(user).on(winner.userId.eq(user.userId))
-                .innerJoin(event).on(winner.eventId.eq(event.id))
-                .innerJoin(reward).on(winner.rewardId.eq(reward.id))
-                .where(winner.eventId.eq(eventId))
+                // PK 조인을 먼저 수행 (성능 최적화)
+                .innerJoin(event).on(winner.eventId.eq(event.id))      // PK 조인
+                .innerJoin(reward).on(winner.rewardId.eq(reward.id))   // PK 조인  
+                .innerJoin(user).on(winner.userId.eq(user.userId))     // PK 조인 (마지막)
+                .where(winner.eventId.eq(eventId))                     // 인덱스 활용
+                .orderBy(winner.id.desc())                             // PK 정렬
                 .fetch();
     }
 
@@ -72,10 +74,12 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         winner.sentAt
                 ))
                 .from(winner)
-                .innerJoin(user).on(winner.userId.eq(user.userId))
+                // PK 조인 우선 수행
                 .innerJoin(event).on(winner.eventId.eq(event.id))
                 .innerJoin(reward).on(winner.rewardId.eq(reward.id))
-                .where(winner.status.eq(status))
+                .innerJoin(user).on(winner.userId.eq(user.userId))
+                .where(winner.status.eq(status))                      // 인덱스 활용
+                .orderBy(winner.id.desc())                             // PK 정렬
                 .fetch();
     }
 
@@ -101,9 +105,11 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         winner.sentAt
                 ))
                 .from(winner)
-                .innerJoin(user).on(winner.userId.eq(user.userId))
+                // PK 조인 우선 수행
                 .innerJoin(event).on(winner.eventId.eq(event.id))
                 .innerJoin(reward).on(winner.rewardId.eq(reward.id))
+                .innerJoin(user).on(winner.userId.eq(user.userId))
+                .orderBy(winner.id.desc())                             // PK 정렬
                 .fetch();
     }
 
@@ -125,9 +131,11 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                         winner.sentAt
                 ))
                 .from(winner)
+                // PK 조인 우선 수행
                 .innerJoin(event).on(winner.eventId.eq(event.id))
                 .innerJoin(reward).on(winner.rewardId.eq(reward.id))
-                .where(winner.userId.eq(userId))
+                .where(winner.userId.eq(userId))                       // 인덱스 활용
+                .orderBy(winner.id.desc())                             // PK 정렬
                 .fetch();
     }
 }

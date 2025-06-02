@@ -1,6 +1,5 @@
 package com.seob.application.entry.service;
 
-import com.seob.application.common.utils.SecurityUtils;
 import com.seob.application.entry.controller.dto.EntryResponse;
 import com.seob.application.entry.controller.dto.ParticipantEntryResponse;
 import com.seob.application.entry.controller.dto.UserEntryResponse;
@@ -10,8 +9,8 @@ import com.seob.systemdomain.entry.dto.UserEventInfo;
 import com.seob.systemdomain.entry.service.EntryQueryService;
 import com.seob.systemdomain.entry.service.EntryService;
 import com.seob.systemdomain.event.repository.EventRepository;
+import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +27,9 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
     private final EventRepository eventRepository;
     
     @Override
-    public EntryResponse applyToEvent(Long eventId, String ticketId) {
-        // 현재 사용자 ID 가져오기
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        
+    public EntryResponse applyToEvent(Long eventId, String ticketId, UserId userId) {
         // 이벤트 참여 처리
-        EntryDomain entry = entryService.apply(currentUserId, eventId, ticketId);
+        EntryDomain entry = entryService.apply(userId.getValue(), eventId, ticketId);
         
         // 이벤트 이름 조회
         String eventName = eventRepository.findById(eventId).getName();
@@ -49,12 +45,9 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
     }
     
     @Override
-    public EntryResponse applyToEventWithoutTicket(Long eventId) {
-        // 현재 사용자 ID 가져오기
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        
+    public EntryResponse applyToEventWithoutTicket(Long eventId, UserId userId) {
         // 티켓 ID 없이 이벤트 참여 처리
-        EntryDomain entry = entryService.applyWithoutTicketId(currentUserId, eventId);
+        EntryDomain entry = entryService.applyWithoutTicketId(userId.getValue(), eventId);
         
         // 이벤트 이름 조회
         String eventName = eventRepository.findById(eventId).getName();
@@ -71,9 +64,8 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserEntryResponse> getMyEntries() {
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(currentUserId);
+    public List<UserEntryResponse> getMyEntries(UserId userId) {
+        List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(userId.getValue());
         
         return userEvents.stream()
                 .map(UserEntryResponse::from)
@@ -83,11 +75,6 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
     @Override
     @Transactional(readOnly = true)
     public List<UserEntryResponse> getUserEntries(String userId) {
-        // 관리자 권한 체크
-        if (!SecurityUtils.isAdmin()) {
-            throw new AccessDeniedException("관리자 권한이 필요합니다");
-        }
-        
         List<UserEventInfo> userEvents = entryQueryService.findUserEventInfoByUserId(userId);
         
         return userEvents.stream()
@@ -98,11 +85,6 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
     @Override
     @Transactional(readOnly = true)
     public List<ParticipantEntryResponse> getEventEntries(Long eventId) {
-        // 관리자 권한 체크
-        if (!SecurityUtils.isAdmin()) {
-            throw new AccessDeniedException("관리자 권한이 필요합니다");
-        }
-        
         // 이벤트 이름 조회
         String eventName = eventRepository.findById(eventId).getName();
         

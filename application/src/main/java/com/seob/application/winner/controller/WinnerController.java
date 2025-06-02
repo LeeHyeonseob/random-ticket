@@ -1,5 +1,6 @@
 package com.seob.application.winner.controller;
 
+import com.seob.application.auth.CustomUserDetails;
 import com.seob.application.winner.controller.dto.WinnerAdminResponse;
 import com.seob.application.winner.controller.dto.WinnerCheckRequest;
 import com.seob.application.winner.controller.dto.WinnerPublicResponse;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -166,8 +168,8 @@ public class WinnerController {
     )
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<WinnerUserResponse>> getMyWinners() {
-        List<WinnerUserDetailInfo> myWinners = winnerApplicationService.getMyWinners();
+    public ResponseEntity<List<WinnerUserResponse>> getMyWinners(@AuthenticationPrincipal CustomUserDetails user) {
+        List<WinnerUserDetailInfo> myWinners = winnerApplicationService.getMyWinners(user.getUserId());
         List<WinnerUserResponse> responses = myWinners.stream()
                 .map(WinnerUserResponse::of)
                 .toList();

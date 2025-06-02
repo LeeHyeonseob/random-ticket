@@ -1,6 +1,5 @@
 package com.seob.application.winner.service;
 
-import com.seob.application.common.utils.SecurityUtils;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.winner.dto.WinnerPublicInfo;
 import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
@@ -173,10 +172,8 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
     //현재 로그인한 사용자의 당첨 내역 조회
     @Override
     @Transactional(readOnly = true)
-    public List<WinnerUserDetailInfo> getMyWinners() {
-        // 현재 로그인한 사용자 ID 가져오기
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        return winnerQueryRepository.findUserDetailsByUserId(currentUserId);
+    public List<WinnerUserDetailInfo> getMyWinners(UserId userId) {
+        return winnerQueryRepository.findUserDetailsByUserId(userId.getValue());
     }
     
     //공개 당첨자 목록 조회 (마스킹 처리) - 보상 정보를 포함하여 한 번에 조회

@@ -1,5 +1,6 @@
 package com.seob.application.user.controller;
 
+import com.seob.application.auth.CustomUserDetails;
 import com.seob.application.common.dto.PageResponse;
 import com.seob.application.user.controller.dto.UserProfileRequest;
 import com.seob.application.user.controller.dto.UserProfileResponse;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,8 +41,8 @@ public class UserController {
     )
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserProfileResponse> getCurrentUser() {
-        UserProfileResponse profile = userApplicationService.getCurrentUserProfile();
+    public ResponseEntity<UserProfileResponse> getCurrentUser(@AuthenticationPrincipal CustomUserDetails user) {
+        UserProfileResponse profile = userApplicationService.getUserProfile(user.getUserId());
         return ResponseEntity.ok(profile);
     }
 
@@ -57,8 +59,8 @@ public class UserController {
     )
     @PatchMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserProfileResponse> updateUserProfile(@RequestBody UserProfileRequest request) {
-        UserProfileResponse updatedProfile = userApplicationService.updateUserProfile(request);
+    public ResponseEntity<UserProfileResponse> updateUserProfile(@RequestBody UserProfileRequest request, @AuthenticationPrincipal CustomUserDetails user) {
+        UserProfileResponse updatedProfile = userApplicationService.updateUserProfile(user.getUserId(), request);
         return ResponseEntity.ok(updatedProfile);
     }
 
@@ -76,8 +78,9 @@ public class UserController {
     public ResponseEntity<PageResponse<UserTicketResponse>> getUserTickets(
             @RequestParam(required = false) Boolean used,
             @RequestParam(required = false) Boolean expired,
-            @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
-        Page<UserTicketResponse> tickets = userApplicationService.getUserTickets(used, expired, pageable);
+            @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        Page<UserTicketResponse> tickets = userApplicationService.getUserTickets(user.getUserId(), used, expired, pageable);
         return ResponseEntity.ok(PageResponse.of(tickets));
     }
 

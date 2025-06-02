@@ -1,12 +1,9 @@
 package com.seob.application.user.service;
 
-import com.seob.application.common.utils.SecurityUtils;
 import com.seob.application.user.controller.dto.UserProfileRequest;
 import com.seob.application.user.controller.dto.UserProfileResponse;
 import com.seob.application.user.controller.dto.UserTicketResponse;
 import com.seob.systemdomain.ticket.domain.TicketDomain;
-import com.seob.systemdomain.ticket.domain.vo.TicketId;
-import com.seob.systemdomain.ticket.dto.TicketInfo;
 import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.user.dto.UserProfileInfo;
@@ -36,26 +33,24 @@ public class UserApplicationServiceImpl implements UserApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserProfileResponse getCurrentUserProfile() {
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        return getUserProfile(currentUserId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserProfileResponse getUserProfile(String userId) {
-        UserProfileInfo userProfile = userRepository.findProfileById(UserId.of(userId))
+    public UserProfileResponse getUserProfile(UserId userId) {
+        UserProfileInfo userProfile = userRepository.findProfileById(userId)
                 .orElseThrow(() -> UserNotFoundException.EXCEPTION);
         return UserProfileResponse.of(userProfile);
     }
 
+    //오버로딩
     @Override
-    public UserProfileResponse updateUserProfile(UserProfileRequest request) {
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        
+    @Transactional(readOnly = true)
+    public UserProfileResponse getUserProfile(String userId) {
+        return getUserProfile(UserId.of(userId));
+    }
+
+    @Override
+    public UserProfileResponse updateUserProfile(UserId userId, UserProfileRequest request) {
         // 사용자 정보 업데이트
         UserProfileInfo updatedProfile = userService.updateProfile(
-                UserId.of(currentUserId),
+                userId,
                 request.nickname()
         );
         
@@ -64,15 +59,14 @@ public class UserApplicationServiceImpl implements UserApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UserTicketResponse> getUserTickets(Boolean used, Boolean expired, Pageable pageable) {
-        String currentUserId = SecurityUtils.getCurrentUserId();
-        log.info("티켓 조회 요청 - 사용자: {}, 사용됨: {}, 만료됨: {}", currentUserId, used, expired);
+    public Page<UserTicketResponse> getUserTickets(UserId userId, Boolean used, Boolean expired, Pageable pageable) {
+        log.info("티켓 조회 요청 - 사용자: {}, 사용됨: {}, 만료됨: {}", userId.getValue(), used, expired);
         
-        // 필터링이 적용된 단일 쿼리로 티켓 조회
+        // 필터링 적용한 단일 쿼리 티켓 조회
         Page<TicketDomain> ticketPage = ticketRepository.findByUserIdWithFilters(
-                currentUserId, used, expired, pageable);
+                userId.getValue(), used, expired, pageable);
         
-        // 도메인 객체를 DTO로 변환
+        // 도메인 -> DTO
         List<UserTicketResponse> ticketResponses = ticketPage.getContent().stream()
                 .map(UserTicketResponse::of)
                 .collect(Collectors.toList());
@@ -82,7 +76,4 @@ public class UserApplicationServiceImpl implements UserApplicationService {
         
         return new PageImpl<>(ticketResponses, pageable, ticketPage.getTotalElements());
     }
-
-    
-
 }

@@ -1,6 +1,7 @@
 package com.seob.application.winner.service;
 
 
+import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.winner.domain.WinnerDomain;
 import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
 import com.seob.systemdomain.winner.dto.WinnerPublicInfo;
@@ -21,8 +22,8 @@ public interface WinnerApplicationService {
     //조회
     List<WinnerUserDetailInfo> getWinnersByUserId(String userId);
     
-    //현재 로그인한 사용자의 당첨 내역 조회
-    List<WinnerUserDetailInfo> getMyWinners();
+    //사용자의 당첨 내역 조회
+    List<WinnerUserDetailInfo> getMyWinners(UserId userId);
 
     // WinnerDetailInfo를 WinnerRewardDetailInfo로 변경
     List<WinnerRewardDetailInfo> getWinnersByEventId(Long eventId);

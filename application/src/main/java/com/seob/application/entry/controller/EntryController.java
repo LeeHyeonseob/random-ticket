@@ -1,5 +1,6 @@
 package com.seob.application.entry.controller;
 
+import com.seob.application.auth.CustomUserDetails;
 import com.seob.application.entry.controller.dto.EntryResponse;
 import com.seob.application.entry.controller.dto.ParticipantEntryResponse;
 import com.seob.application.entry.controller.dto.UserEntryResponse;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,9 +33,10 @@ public class EntryController {
     @PostMapping("/events/{eventId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<EntryResponse> applyToEvent(
-            @PathVariable Long eventId) {
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal CustomUserDetails user) {
         
-        EntryResponse response = entryApplicationService.applyToEventWithoutTicket(eventId);
+        EntryResponse response = entryApplicationService.applyToEventWithoutTicket(eventId, user.getUserId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -44,8 +47,8 @@ public class EntryController {
     )
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<UserEntryResponse>> getMyEntries() {
-        List<UserEntryResponse> entries = entryApplicationService.getMyEntries();
+    public ResponseEntity<List<UserEntryResponse>> getMyEntries(@AuthenticationPrincipal CustomUserDetails user) {
+        List<UserEntryResponse> entries = entryApplicationService.getMyEntries(user.getUserId());
         return ResponseEntity.ok(entries);
     }
 
