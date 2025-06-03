@@ -145,22 +145,7 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
     @Override
     @Transactional(readOnly = true)
     public boolean checkWinner(String name, String email) {
-        // 사용자 레포지토리에서 이름과 이메일로 사용자 찾기
-        List<UserId> userIds = userRepository.findByNameAndEmail(name, email);
-        
-        if (userIds.isEmpty()) {
-            return false;
-        }
-        
-        // 찾은 사용자들 중에 당첨자가 있는지 확인
-        for (UserId userId : userIds) {
-            List<WinnerUserDetailInfo> winners = winnerQueryRepository.findUserDetailsByUserId(userId.getValue());
-            if (!winners.isEmpty()) {
-                return true;
-            }
-        }
-        
-        return false;
+        return winnerQueryRepository.existsByUserNameAndEmail(name, email);
     }
     
     //현재 로그인한 사용자의 당첨 내역 조회

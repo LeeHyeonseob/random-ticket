@@ -15,4 +15,6 @@ public interface WinnerQueryRepository {
     List<WinnerRewardDetailInfo> findAllDetails();
     
     List<WinnerUserDetailInfo> findUserDetailsByUserId(String userId);
+
+    boolean existsByUserNameAndEmail(String userName, String email);
 }

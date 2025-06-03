@@ -133,4 +133,23 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                 .orderBy(winner.id.desc())
                 .fetch();
     }
+
+    @Override
+    public boolean existsByUserNameAndEmail(String userName, String email){
+        QWinnerEntity winner = QWinnerEntity.winnerEntity;
+        QUserEntity user = QUserEntity.userEntity;
+
+        Integer result = queryFactory
+                .selectOne()
+                .from(winner)
+                .innerJoin(user).on(winner.userId.eq(user.userId))
+                .where(
+                        user.nickname.eq(userName).and(user.email.eq(email))
+                )
+                .fetchFirst();
+
+        return result != null;
+    }
+
+
 }
