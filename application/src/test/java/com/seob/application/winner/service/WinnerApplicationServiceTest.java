@@ -1,6 +1,5 @@
 package com.seob.application.winner.service;
 
-import com.seob.application.common.utils.SecurityUtils;
 import com.seob.application.winner.exception.AlreadyWinnerExistsException;
 import com.seob.application.winner.exception.EntryNotFoundException;
 import com.seob.application.winner.exception.NoRewardInEventException;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -216,27 +214,9 @@ class WinnerApplicationServiceTest {
         when(winnerService.findById(winnerId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> winnerApplicationService.sendReward(winnerId))
+        assertThatThrownBy(() -> winnerApplicationService.sendRewardManually(winnerId))
             .isInstanceOf(WinnerNotFoundException.class);
         
-        verify(winnerService).findById(winnerId);
-        verify(emailService, never()).sendRewardEmail(any(), any(), any());
-        verify(winnerService, never()).updateStatus(any(), any());
-    }
-
-    @Test
-    @DisplayName("보상 발송 테스트 - 이미 발송됨")
-    void sendRewardAlreadySentTest() {
-        // given
-        Long winnerId = 1L;
-        WinnerDomain winner = WinnerDomain.of(winnerId, "user-1", 2L, 3L, null, RewardStatus.COMPLETE, LocalDateTime.now());
-        when(winnerService.findById(winnerId)).thenReturn(Optional.of(winner));
-
-        // when
-        boolean result = winnerApplicationService.sendReward(winnerId);
-
-        // then
-        assertThat(result).isFalse();
         verify(winnerService).findById(winnerId);
         verify(emailService, never()).sendRewardEmail(any(), any(), any());
         verify(winnerService, never()).updateStatus(any(), any());
@@ -318,24 +298,21 @@ class WinnerApplicationServiceTest {
     @DisplayName("내 당첨 정보 조회 테스트")
     void getMyWinnersTest() {
         // given
-        String currentUserId = "current-user";
+        UserId userId = UserId.of("current-user");
         List<WinnerUserDetailInfo> expectedWinners = Arrays.asList(
             mock(WinnerUserDetailInfo.class),
             mock(WinnerUserDetailInfo.class)
         );
         
-        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(currentUserId);
-            when(winnerQueryRepository.findUserDetailsByUserId(currentUserId)).thenReturn(expectedWinners);
+        when(winnerQueryRepository.findUserDetailsByUserId(userId.getValue())).thenReturn(expectedWinners);
 
-            // when
-            List<WinnerUserDetailInfo> result = winnerApplicationService.getMyWinners();
+        // when
+        List<WinnerUserDetailInfo> result = winnerApplicationService.getMyWinners(userId);
 
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result).hasSize(2);
-            assertThat(result).isEqualTo(expectedWinners);
-            verify(winnerQueryRepository).findUserDetailsByUserId(currentUserId);
-        }
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result).isEqualTo(expectedWinners);
+        verify(winnerQueryRepository).findUserDetailsByUserId(userId.getValue());
     }
 }
