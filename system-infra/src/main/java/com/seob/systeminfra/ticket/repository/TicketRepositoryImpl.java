@@ -107,10 +107,13 @@ public class TicketRepositoryImpl implements TicketRepository {
         }
         
         // 총 개수 조회
-        long total = queryFactory
-                .selectFrom(ticket)
-                .where(predicate)
-                .fetchCount();
+        Long total = Optional.ofNullable(
+                queryFactory
+                        .select(ticket.count())
+                        .from(ticket)
+                        .where(predicate)
+                        .fetchOne()
+        ).orElse(0L);
         
         // 페이지 조회
         List<TicketEntity> tickets = queryFactory

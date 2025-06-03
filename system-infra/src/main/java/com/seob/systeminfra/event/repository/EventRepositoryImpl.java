@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -118,10 +119,13 @@ public class EventRepositoryImpl implements EventRepository {
         BooleanExpression whereCondition = combineConditions(statusCondition, fromDateCondition, toDateCondition);
         
         // 총 개수 쿼리
-        long total = queryFactory
-                .selectFrom(event)
-                .where(whereCondition)
-                .fetchCount();
+        Long total = Optional.ofNullable(
+                queryFactory
+                        .select(event.count())
+                        .from(event)
+                        .where(whereCondition)
+                        .fetchOne()
+        ).orElse(0L);
         
         // 페이징 쿼리
         List<EventEntity> events = queryFactory
