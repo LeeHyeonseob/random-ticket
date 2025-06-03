@@ -74,9 +74,7 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
     }
 
-    /**
-     * Map<String, String> 데이터를 TicketDomain으로 파싱한다.
-     */
+    //  Map<String, String> 데이터를 TicketDomain으로 파싱
     private TicketDomain convertToTicketDomain(Map<String, String> ticketData) {
         try {
             String ticketIdStr = ticketData.get("ticketId");
@@ -119,9 +117,7 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
     }
 
-    /**
-     * 메시지를 Ack하여 pending 목록에서 제거한다.
-     */
+    // 메시지를 Ack하여 pending 목록에서 제거
     private void acknowledgeMessage(MapRecord<String, String, String> message) {
         try {
             redisTemplate.opsForStream().acknowledge(groupName, message);
@@ -130,9 +126,7 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
     }
 
-    /**
-     * 메시지 처리 실패 시 재시도/ DLQ 이동을 처리한다.
-     */
+    // 메시지 처리 실패 시 재시도/ DLQ 이동
     private void handleFailedMessage(MapRecord<String, String, String> message, Exception e) {
         // 재시도 횟수 확인
         String retryCountStr = message.getValue().get("retryCount");

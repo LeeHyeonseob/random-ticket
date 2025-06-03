@@ -11,9 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * 티켓 만료 처리를 위한 스케줄러 서비스
- */
+
 @Service
 @Slf4j
 @RequiredArgsConstructor

@@ -11,10 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * EntryQueryRepository 구현체
- * 이벤트 참여 조회 관련 쿼리를 처리합니다.
- */
+
 @Repository
 @RequiredArgsConstructor
 public class EntryQueryRepositoryImpl implements EntryQueryRepository {

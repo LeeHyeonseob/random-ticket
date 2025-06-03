@@ -40,13 +40,7 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
     private final EmailService emailService;
 
 
-    /**
-     * 1) 이벤트 ID로 참가자들을 조회
-     * 2) 이미 당첨자가 있으면 예외
-     * 3) 무작위로 1명 추첨
-     * 4) 보상(Reward) 식별자 조회 후
-     * 5) 도메인 서비스로 WinnerDomain 생성
-     */
+
 
     @Override
     public WinnerDomain selectWinner(Long eventId) {

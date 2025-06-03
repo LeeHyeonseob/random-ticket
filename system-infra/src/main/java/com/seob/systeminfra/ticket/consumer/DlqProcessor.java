@@ -88,9 +88,7 @@ public class DlqProcessor {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * MapRecord<String, Object, Object>를 MapRecord<String, String, String>으로 변환
-     */
+    // MapRecord<String, Object, Object>를 MapRecord<String, String, String>으로 변환
     private MapRecord<String, String, String> convertToStringRecord(MapRecord<String, Object, Object> message) {
         // 필드와 값을 문자열로 변환
         Map<String, String> stringMap = new HashMap<>();
@@ -102,9 +100,7 @@ public class DlqProcessor {
                 .ofMap(stringMap);
     }
 
-    /**
-     * 각각의 메시지를 재처리하고 ACK까지 수행.
-     */
+    // 각각의 메시지를 재처리하고 ACK까지 수행
     private void processSingleMessage(MapRecord<String, String, String> message) {
         try {
             log.info("DLQ 메시지 처리 시작: {}", message.getId());
@@ -122,9 +118,7 @@ public class DlqProcessor {
         }
     }
 
-    /**
-     * 메시지를 ACK 처리한다.
-     */
+    // 메시지를 ACK 처리한다
     private void acknowledgeMessage(MapRecord<String, String, String> message) {
         try {
             redisTemplate.opsForStream().acknowledge(dlqGroup, message);

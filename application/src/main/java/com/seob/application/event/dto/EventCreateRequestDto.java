@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-/**
- * 이벤트 생성 요청 DTO
- */
+
 @Data
 @Builder
 @NoArgsConstructor
