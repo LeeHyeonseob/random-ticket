@@ -1,11 +1,9 @@
 package com.seob.application.winner.service;
 
-import com.seob.systemdomain.event.repository.EventRepository;
+import com.seob.systemdomain.winner.dto.WinnerNotificationInfo;
 import com.seob.systemdomain.winner.dto.WinnerPublicInfo;
 import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
 import com.seob.systeminfra.email.EmailService;
-import com.seob.systeminfra.reward.exception.RewardNotFoundException;
-import com.seob.systeminfra.entry.exception.UserNotFoundException;
 import com.seob.application.winner.exception.AlreadyWinnerExistsException;
 import com.seob.application.winner.exception.EntryNotFoundException;
 import com.seob.application.winner.exception.NoRewardInEventException;
@@ -13,7 +11,6 @@ import com.seob.application.winner.exception.WinnerNotFoundException;
 import com.seob.systemdomain.entry.repository.EntryRepository;
 import com.seob.systemdomain.reward.repository.RewardRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
-import com.seob.systemdomain.user.repository.UserRepository;
 import com.seob.systemdomain.winner.domain.WinnerDomain;
 import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
@@ -35,8 +32,6 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
     private final WinnerQueryRepository winnerQueryRepository;
     private final EntryRepository entryRepository;
     private final RewardRepository rewardRepository;
-    private final UserRepository userRepository;
-    private final EventRepository eventRepository;
     private final EmailService emailService;
 
 
@@ -89,30 +84,27 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
     }
 
     private void executeRewardSend(Long winnerId) {
-        WinnerDomain winnerDomain = winnerService.findById(winnerId)
+
+        WinnerNotificationInfo winnerNotificationInfo = winnerQueryRepository.findNotificationInfoById(winnerId)
                 .orElseThrow(() -> WinnerNotFoundException.EXCEPTION);
 
-        if (winnerDomain.getStatus() != RewardStatus.PENDING) {
-            throw new IllegalStateException("이미 처리된 당첨자입니다. 현재 상태: " + winnerDomain.getStatus());
+
+        if (winnerNotificationInfo.status() != RewardStatus.PENDING) {
+            throw new IllegalStateException("이미 처리된 당첨자입니다. 현재 상태: " + winnerNotificationInfo.status());
         }
 
         try {
-            String userEmail = userRepository.findById(winnerDomain.getUserId())
-                    .orElseThrow(() -> UserNotFoundException.EXCEPTION)
-                    .getEmail().getValue();
 
-            String rewardUrl = rewardRepository.findById(winnerDomain.getRewardId())
-                    .orElseThrow(() -> RewardNotFoundException.EXCEPTION)
-                    .getResourceUrl();
+            emailService.sendRewardEmail(
+                    winnerNotificationInfo.userEmail(),
+                    winnerNotificationInfo.eventName(),
+                    winnerNotificationInfo.rewardUrl()
+            );
 
-            String eventName = eventRepository.findById(winnerDomain.getEventId()).getName();
-
-            emailService.sendRewardEmail(userEmail, eventName, rewardUrl);
-
-            winnerService.updateStatus(winnerDomain, RewardStatus.COMPLETE);
+            winnerService.updateStatus(winnerNotificationInfo.winnerId(), RewardStatus.COMPLETE);
 
         } catch (Exception e) {
-            winnerService.updateStatus(winnerDomain, RewardStatus.FAILED);
+            winnerService.updateStatus(winnerNotificationInfo.winnerId(), RewardStatus.FAILED);
             throw e;
         }
     }

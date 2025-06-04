@@ -13,7 +13,7 @@ public interface WinnerService {
     List<WinnerDomain> findByStatus(RewardStatus status);
     boolean existsByEventId(Long eventId);
     WinnerDomain createWinner(UserId userId, Long eventId, Long rewardId);
-    void updateStatus(WinnerDomain winnerDomain, RewardStatus status);
+    void updateStatus(Long winnerID, RewardStatus status);
 
 
 

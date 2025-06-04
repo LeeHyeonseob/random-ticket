@@ -113,9 +113,11 @@ class WinnerServiceImplTest {
         // given
         WinnerDomain winner = WinnerDomain.create(UserId.of("user-1"), 1L, 2L);
         RewardStatus newStatus = RewardStatus.COMPLETE;
+
+        when(winnerRepository.findById(winner.getId())).thenReturn(Optional.of(winner));
         
         // when
-        winnerService.updateStatus(winner, newStatus);
+        winnerService.updateStatus(winner.getId(), newStatus);
 
         // then
         assertThat(winner.getStatus()).isEqualTo(RewardStatus.COMPLETE);
@@ -129,9 +131,11 @@ class WinnerServiceImplTest {
         // given
         WinnerDomain winner = WinnerDomain.create(UserId.of("user-1"), 1L, 2L);
         RewardStatus newStatus = RewardStatus.FAILED;
+
+        when(winnerRepository.findById(winner.getId())).thenReturn(Optional.of(winner));
         
         // when
-        winnerService.updateStatus(winner, newStatus);
+        winnerService.updateStatus(winner.getId(), newStatus);
 
         // then
         assertThat(winner.getStatus()).isEqualTo(RewardStatus.FAILED);

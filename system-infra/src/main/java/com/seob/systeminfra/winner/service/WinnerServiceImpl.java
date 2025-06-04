@@ -2,6 +2,7 @@ package com.seob.systeminfra.winner.service;
 
 import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.winner.domain.WinnerDomain;
+import com.seob.systemdomain.winner.exception.WinnerNotFoundException;
 import com.seob.systemdomain.winner.repository.WinnerRepository;
 import com.seob.systemdomain.winner.service.WinnerService;
 import com.seob.systemdomain.winner.vo.RewardStatus;
@@ -40,13 +41,15 @@ public class WinnerServiceImpl implements WinnerService {
     }
 
     @Override
-    public void updateStatus(WinnerDomain winnerDomain, RewardStatus status) {
+    public void updateStatus(Long winnerId, RewardStatus status) {
+        WinnerDomain winner = winnerRepository.findById(winnerId)
+                .orElseThrow(() -> WinnerNotFoundException.EXCEPTION);
         if (status == RewardStatus.COMPLETE) {
-            winnerDomain.send();
+            winner.send();
         } else if (status == RewardStatus.FAILED) {
-            winnerDomain.markAsFailed();
+            winner.markAsFailed();
         }
 
-        winnerRepository.save(winnerDomain);
+        winnerRepository.save(winner);
     }
 }

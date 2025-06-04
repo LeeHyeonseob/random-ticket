@@ -2,6 +2,7 @@ package com.seob.systeminfra.winner.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.seob.systemdomain.winner.dto.WinnerNotificationInfo;
 import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
 import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -149,6 +151,30 @@ public class WinnerQueryRepositoryImpl implements WinnerQueryRepository {
                 .fetchFirst();
 
         return result != null;
+    }
+
+    @Override
+    public Optional<WinnerNotificationInfo> findNotificationInfoById(Long winnerId) {
+        QWinnerEntity winner = QWinnerEntity.winnerEntity;
+        QEventEntity event = QEventEntity.eventEntity;
+        QUserEntity user = QUserEntity.userEntity;
+        QRewardEntity reward = QRewardEntity.rewardEntity;
+
+        WinnerNotificationInfo result = queryFactory
+                .select(Projections.constructor(WinnerNotificationInfo.class,
+                        winner.id,
+                        user.email,
+                        event.name,
+                        reward.resourceUrl,
+                        winner.status))
+                .from(winner)
+                .innerJoin(event).on(winner.eventId.eq(event.id))
+                .innerJoin(reward).on(winner.rewardId.eq(reward.id))
+                .innerJoin(user).on(winner.userId.eq(user.userId))
+                .where(winner.id.eq(winnerId))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
 
