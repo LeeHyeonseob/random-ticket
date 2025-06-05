@@ -70,3 +70,23 @@ redis-data/
 **/node_modules/
 /tmp/
 /temp/
+
+# 배포 스크립트
+deploy.sh
+deploy-ec2.sh
+
+# 설정 파일들
+artillery-config.yml
+application-test.yml
+application-local.yml
+docker-compose.prod.yml
+
+# 분석 및 리포트 파일들
+analyze-queries.sh
+report.html
+report.json
+
+# CSV 파일들
+*.csv
+
+
