@@ -5,6 +5,7 @@ import com.seob.systemdomain.ticket.exception.DuplicateTicketIssuanceException;
 import com.seob.systemdomain.ticket.exception.TicketExhaustedException;
 import com.seob.systemdomain.ticket.exception.TicketProcessException;
 import com.seob.systemdomain.ticket.exception.TicketPublishException;
+import com.seob.systemdomain.ticket.exception.TicketServiceOverloadedException;
 import com.seob.systemdomain.ticket.repository.TicketIssuanceRepository;
 import com.seob.systemdomain.ticket.service.TicketService;
 import com.seob.systemdomain.user.domain.vo.UserId;
@@ -106,7 +107,7 @@ public class RedisTicketService implements TicketService {
         boolean isLocked = lock.tryLock(lockWaitTime, lockLeaseTime, TimeUnit.SECONDS);
         if (!isLocked) {
             log.warn("티켓 발급용 락 획득 실패. 시스템이 과부하 상태일 수 있습니다.");
-            throw com.seob.systeminfra.ticket.exception.TicketServiceOverloadedException.EXCEPTION;
+            throw TicketServiceOverloadedException.EXCEPTION;
         }
     }
     

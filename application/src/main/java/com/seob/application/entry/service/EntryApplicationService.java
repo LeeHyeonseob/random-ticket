@@ -9,11 +9,9 @@ import java.util.List;
 
 // 이벤트 참여 애플리케이션 서비스
 public interface EntryApplicationService {
-    // 이벤트 참여 신청 (티켓 ID 직접 제공)
-    EntryResponse applyToEvent(Long eventId, String ticketId, UserId userId);
-    
+
     // 이벤트 참여 신청 (티켓 ID 자동 찾기)
-    EntryResponse applyToEventWithoutTicket(Long eventId, UserId userId);
+    EntryResponse applyToEvent(Long eventId, UserId userId);
     
     // 사용자의 이벤트 참여 내역 조회
     List<UserEntryResponse> getMyEntries(UserId userId);

@@ -4,14 +4,15 @@ import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.event.service.EventValidationService;
 import com.seob.systemdomain.event.vo.EventStatus;
-import com.seob.systeminfra.event.exception.EventNotFoundException;
-import com.seob.systeminfra.event.exception.InvalidEventStatusException;
+import com.seob.systeminfra.event.exception.EventDataAccessException;
+import com.seob.systeminfra.exception.EventNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 
 @Service
@@ -27,11 +28,12 @@ public class EventValidationServiceImpl implements EventValidationService {
         if (eventId == null) {
             throw new IllegalArgumentException("Event ID는 null일 수 없습니다");
         }
-        
-        if (!isValidEventId(eventId)) {
-            log.warn("존재하지 않는 Event ID: {}", eventId);
-            throw EventNotFoundException.EXCEPTION;
-        }
+
+        eventRepository.findById(eventId)
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 Event ID: {}", eventId);
+                    return EventNotFoundException.EXCEPTION;
+                });
     }
     
     @Override
@@ -43,7 +45,7 @@ public class EventValidationServiceImpl implements EventValidationService {
         EventStatus currentStatus = eventRepository.findStatusById(eventId);
         if (currentStatus != expectedStatus) {
             log.warn("유효하지 않은 Event 상태. 예상: {}, 현재: {}", expectedStatus, currentStatus);
-            throw InvalidEventStatusException.EXCEPTION;
+            throw new IllegalArgumentException("Invalid event status");
         }
     }
     
@@ -60,13 +62,5 @@ public class EventValidationServiceImpl implements EventValidationService {
         }
     }
     
-    @Override
-    public boolean isValidEventId(Long eventId) {
-        if (eventId == null) {
-            return false;
-        }
-        
-        EventDomain event = eventRepository.findById(eventId);
-        return event != null;
-    }
+
 }

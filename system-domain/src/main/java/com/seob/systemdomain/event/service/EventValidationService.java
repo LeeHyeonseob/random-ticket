@@ -13,7 +13,5 @@ public interface EventValidationService {
     
     // 날짜 검증
     void validateEventDate(java.time.LocalDate eventDate);
-    
-    // 이벤트 id 검증 boolean 반환
-    boolean isValidEventId(Long eventId);
+
 }

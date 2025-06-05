@@ -36,7 +36,7 @@ public class EntryController {
             @PathVariable Long eventId,
             @AuthenticationPrincipal CustomUserDetails user) {
         
-        EntryResponse response = entryApplicationService.applyToEventWithoutTicket(eventId, user.getUserId());
+        EntryResponse response = entryApplicationService.applyToEvent(eventId, user.getUserId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

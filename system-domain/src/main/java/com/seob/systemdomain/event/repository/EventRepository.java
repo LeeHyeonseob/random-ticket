@@ -8,11 +8,12 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository {
     EventDomain save(EventDomain eventDomain);
 
-    EventDomain findById(Long id);
+    Optional<EventDomain> findById(Long id);
 
     List<EventDomain> findAll();
 

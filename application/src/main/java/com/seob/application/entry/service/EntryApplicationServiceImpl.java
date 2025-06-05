@@ -8,8 +8,14 @@ import com.seob.systemdomain.entry.dto.ParticipantInfo;
 import com.seob.systemdomain.entry.dto.UserEventInfo;
 import com.seob.systemdomain.entry.service.EntryQueryService;
 import com.seob.systemdomain.entry.service.EntryService;
+import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
+import com.seob.systemdomain.ticket.domain.TicketDomain;
+import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
+import com.seob.systeminfra.entry.exception.EntryDataAccessException;
+import com.seob.systeminfra.exception.EventNotFoundException;
+import com.seob.systeminfra.exception.TicketNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,41 +31,39 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
     private final EntryService entryService;
     private final EntryQueryService entryQueryService;
     private final EventRepository eventRepository;
+    private final TicketRepository ticketRepository;
+
     
     @Override
-    public EntryResponse applyToEvent(Long eventId, String ticketId, UserId userId) {
-        // 이벤트 참여 처리
-        EntryDomain entry = entryService.apply(userId.getValue(), eventId, ticketId);
-        
-        // 이벤트 이름 조회
-        String eventName = eventRepository.findById(eventId).getName();
-        
-        // 응답 변환
-        return new EntryResponse(
-                entry.getId(),
-                entry.getEventId(),
-                eventName,
-                entry.getTicketId(),
-                entry.getCreatedAt()
-        );
-    }
-    
-    @Override
-    public EntryResponse applyToEventWithoutTicket(Long eventId, UserId userId) {
-        // 티켓 ID 없이 이벤트 참여 처리
-        EntryDomain entry = entryService.applyWithoutTicketId(userId.getValue(), eventId);
-        
-        // 이벤트 이름 조회
-        String eventName = eventRepository.findById(eventId).getName();
-        
-        // 응답 변환
-        return new EntryResponse(
-                entry.getId(),
-                entry.getEventId(),
-                eventName,
-                entry.getTicketId(),
-                entry.getCreatedAt()
-        );
+    public EntryResponse applyToEvent(Long eventId, UserId userId) {
+        try {
+            // 1. 도메인 객체 조회
+            EventDomain event = eventRepository.findById(eventId)
+                    .orElseThrow(() -> EventNotFoundException.EXCEPTION);
+            TicketDomain ticket = ticketRepository.findByUserIdAndEventIdAndNotUsed(userId, eventId)
+                    .orElseThrow(() -> TicketNotFoundException.EXCEPTION);
+            
+            // 검증
+            event.validateCanApply();
+            ticket.validateCanUse();
+
+            //티켓 사용
+            ticket.use();
+            
+            //저장
+            EntryDomain entry = entryService.apply(userId.getValue(), eventId);
+            
+            // 5. 응답 변환
+            return new EntryResponse(
+                    entry.getId(),
+                    entry.getEventId(),
+                    event.getName(),
+                    entry.getTicketId(),
+                    entry.getCreatedAt()
+            );
+        } catch (EntryDataAccessException e) {
+            throw e;
+        }
     }
 
     @Override
@@ -86,12 +90,13 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
     @Transactional(readOnly = true)
     public List<ParticipantEntryResponse> getEventEntries(Long eventId) {
         // 이벤트 이름 조회
-        String eventName = eventRepository.findById(eventId).getName();
+        EventDomain event = eventRepository.findById(eventId)
+            .orElseThrow(() -> EventNotFoundException.EXCEPTION);
         
         List<ParticipantInfo> participants = entryQueryService.findParticipantDetailsByEventId(eventId);
         
         return participants.stream()
-                .map(info -> ParticipantEntryResponse.from(info, eventName))
+                .map(info -> ParticipantEntryResponse.from(info, event.getName()))
                 .collect(Collectors.toList());
     }
 }

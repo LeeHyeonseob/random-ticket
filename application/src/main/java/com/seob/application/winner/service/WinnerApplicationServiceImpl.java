@@ -3,11 +3,12 @@ package com.seob.application.winner.service;
 import com.seob.systemdomain.winner.dto.WinnerNotificationInfo;
 import com.seob.systemdomain.winner.dto.WinnerPublicInfo;
 import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
+import com.seob.systemdomain.winner.exception.WinnerAlreadyProcessedException;
 import com.seob.systeminfra.email.EmailService;
-import com.seob.application.winner.exception.AlreadyWinnerExistsException;
-import com.seob.application.winner.exception.EntryNotFoundException;
-import com.seob.application.winner.exception.NoRewardInEventException;
-import com.seob.application.winner.exception.WinnerNotFoundException;
+import com.seob.systemdomain.entry.exception.EntryNotFoundException;
+import com.seob.systemdomain.reward.exception.NoRewardInEventException;
+import com.seob.systemdomain.winner.exception.WinnerNotFoundException;
+import com.seob.systemdomain.winner.exception.WinnerAlreadyExistsException;
 import com.seob.systemdomain.entry.repository.EntryRepository;
 import com.seob.systemdomain.reward.repository.RewardRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
@@ -16,6 +17,7 @@ import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
 import com.seob.systemdomain.winner.service.WinnerService;
 import com.seob.systemdomain.winner.vo.RewardStatus;
+import com.seob.systeminfra.winner.exception.WinnerDataAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +52,7 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
         //이미 당첨자 있으면
         if(winnerService.existsByEventId(eventId)){
             //이미 당첨되었으면 예외처리
-            throw AlreadyWinnerExistsException.EXCEPTION;
+            throw WinnerAlreadyExistsException.EXCEPTION;
         }
 
         //랜덤 추첨
@@ -76,25 +78,18 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
 
     @Override
     public void sendRewardManually(Long winnerId) {
-        try {
-            executeRewardSend(winnerId);
-        } catch (Exception e) {
-            throw new RuntimeException("보상 발송 중 오류가 발생했습니다: " + e.getMessage(), e);
-        }
+        executeRewardSend(winnerId);
     }
 
     private void executeRewardSend(Long winnerId) {
-
         WinnerNotificationInfo winnerNotificationInfo = winnerQueryRepository.findNotificationInfoById(winnerId)
                 .orElseThrow(() -> WinnerNotFoundException.EXCEPTION);
 
-
         if (winnerNotificationInfo.status() != RewardStatus.PENDING) {
-            throw new IllegalStateException("이미 처리된 당첨자입니다. 현재 상태: " + winnerNotificationInfo.status());
+            throw WinnerAlreadyProcessedException.EXCEPTION;
         }
 
         try {
-
             emailService.sendRewardEmail(
                     winnerNotificationInfo.userEmail(),
                     winnerNotificationInfo.eventName(),
@@ -103,6 +98,9 @@ public class WinnerApplicationServiceImpl implements WinnerApplicationService {
 
             winnerService.updateStatus(winnerNotificationInfo.winnerId(), RewardStatus.COMPLETE);
 
+        } catch (WinnerDataAccessException e) {
+            winnerService.updateStatus(winnerNotificationInfo.winnerId(), RewardStatus.FAILED);
+            throw WinnerNotFoundException.EXCEPTION;
         } catch (Exception e) {
             winnerService.updateStatus(winnerNotificationInfo.winnerId(), RewardStatus.FAILED);
             throw e;

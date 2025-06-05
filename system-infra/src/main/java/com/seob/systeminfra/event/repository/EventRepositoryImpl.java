@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systeminfra.event.entity.EventEntity;
 import com.seob.systeminfra.event.entity.QEventEntity;
-import com.seob.systeminfra.event.exception.EventNotFoundException;
+import java.util.Optional;
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.event.vo.EventStatus;
@@ -35,10 +35,8 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
-    public EventDomain findById(Long id) {
-        EventEntity eventEntity = eventJpaRepository.findById(id)
-                .orElseThrow(() -> EventNotFoundException.EXCEPTION);
-        return toDomain(eventEntity);
+    public Optional<EventDomain> findById(Long id) {
+        return eventJpaRepository.findById(id).map(this::toDomain);
     }
 
     @Override

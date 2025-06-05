@@ -1,14 +1,16 @@
 package com.seob.systeminfra.reward.service;
 
-import com.seob.systemcore.error.exception.RewardException;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.reward.domain.RewardDomain;
 import com.seob.systemdomain.reward.repository.RewardRepository;
 import com.seob.systemdomain.reward.service.RewardService;
+import com.seob.systeminfra.reward.exception.RewardDataAccessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,11 +24,18 @@ public class RewardServiceImpl implements RewardService {
     @Override
     public RewardDomain createReward(Long eventId, String rewardName, String resourceUrl) {
         if (eventId == null) {
-            throw RewardException.INVALID_EVENT_ID;
+            throw new IllegalArgumentException("Event ID cannot be null");
         }
 
-        validateEventExists(eventId);
-        validateRewardNotExists(eventId);
+        if (!eventRepository.existsById(eventId)) {
+            log.warn("보상 생성 실패: 존재하지 않는 이벤트 ID={}", eventId);
+            throw RewardDataAccessException.EVENT_NOT_FOUND;
+        }
+
+        if (rewardRepository.existsByEventId(eventId)) {
+            log.warn("보상 생성 실패: 이미 보상이 존재하는 이벤트 ID={}", eventId);
+            throw RewardDataAccessException.REWARD_ALREADY_EXISTS;
+        }
 
         RewardDomain rewardDomain = RewardDomain.create(eventId, rewardName, resourceUrl);
         return rewardRepository.save(rewardDomain);
@@ -35,11 +44,10 @@ public class RewardServiceImpl implements RewardService {
     @Override
     @Transactional(readOnly = true)
     public RewardDomain getRewardByEventId(Long eventId) {
-        return rewardRepository.findByEventId(eventId)
-                .orElseThrow(() -> {
-                    log.warn("보상 조회 실패: 이벤트 ID={}에 보상이 없습니다", eventId);
-                    return RewardException.EVENT_NOT_FOUND_FOR_REWARD;
-                });
+        RewardDomain reward = rewardRepository.findByEventId(eventId)
+                .orElseThrow(() -> RewardDataAccessException.EVENT_NOT_FOUND);
+
+        return reward;
     }
 
     @Override
@@ -50,37 +58,20 @@ public class RewardServiceImpl implements RewardService {
 
     @Override
     public RewardDomain updateReward(Long rewardId, String rewardName, String resourceUrl) {
-        RewardDomain existingReward = rewardRepository.findById(rewardId)
-                .orElseThrow(() -> {
-                    log.warn("보상 수정 실패: 보상 ID={}를 찾을 수 없습니다", rewardId);
-                    return RewardException.EVENT_NOT_FOUND_FOR_REWARD;
-                });
+        RewardDomain reward = rewardRepository.findById(rewardId)
+                .orElseThrow(() -> RewardDataAccessException.NOT_FOUND);
+
         
-        RewardDomain updatedReward = existingReward.update(rewardName, resourceUrl);
+
+        RewardDomain updatedReward = reward.update(rewardName, resourceUrl);
         return rewardRepository.save(updatedReward);
     }
 
     @Override
     public void deleteReward(Long rewardId) {
-        if (rewardRepository.findById(rewardId).isEmpty()) {
-            log.warn("보상 삭제 실패: 보상 ID={}를 찾을 수 없습니다", rewardId);
-            throw RewardException.EVENT_NOT_FOUND_FOR_REWARD;
-        }
+        RewardDomain rewardOpt = rewardRepository.findById(rewardId)
+                .orElseThrow(() -> RewardDataAccessException.NOT_FOUND);
         
         rewardRepository.deleteById(rewardId);
-    }
-
-    private void validateEventExists(Long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            log.warn("보상 생성 실패: 존재하지 않는 이벤트 ID={}", eventId);
-            throw RewardException.EVENT_NOT_FOUND_FOR_REWARD;
-        }
-    }
-
-    private void validateRewardNotExists(Long eventId) {
-        if (rewardRepository.existsByEventId(eventId)) {
-            log.warn("보상 생성 실패: 이미 보상이 존재하는 이벤트 ID={}", eventId);
-            throw RewardException.REWARD_ALREADY_EXISTS;
-        }
     }
 }

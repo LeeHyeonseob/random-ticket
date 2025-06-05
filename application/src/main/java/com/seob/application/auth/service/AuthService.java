@@ -13,6 +13,7 @@ import com.seob.systemdomain.user.domain.vo.Email;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import com.seob.systemdomain.user.repository.UserRepository;
 import com.seob.systeminfra.email.EmailService;
+import com.seob.systeminfra.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -73,7 +74,7 @@ public class AuthService {
         Email userEmail = Email.from(email);
 
         UserDomain user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> AlreadyExistsEmailException.EXCEPTION); //예외 추가
+                .orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         if(user.isActive()){
             throw AlreadyVerifiedException.EXCEPTION;
