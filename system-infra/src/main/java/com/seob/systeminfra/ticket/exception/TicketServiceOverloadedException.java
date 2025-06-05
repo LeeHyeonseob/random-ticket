@@ -1,12 +1,3 @@
-package com.seob.systeminfra.ticket.exception;
-
-import com.seob.systemcore.error.ErrorCode;
-import com.seob.systeminfra.exception.InfraException;
-
-public class TicketServiceOverloadedException extends InfraException {
-    public static final InfraException EXCEPTION = new TicketServiceOverloadedException();
-
-    private TicketServiceOverloadedException() {
-        super(ErrorCode.TICKET_SERVICE_OVERLOADED);
-    }
-}
+// 이 파일은 삭제됩니다.
+// TicketServiceOverloadedException은 system-domain 모듈에서 관리됩니다.
+// 비즈니스 규칙 위반이므로 domain 계층에서 처리해야 합니다.

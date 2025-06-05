@@ -1,10 +1,8 @@
 package com.seob.systemdomain.ticket.exception;
 
 import com.seob.systemcore.error.ErrorCode;
-import com.seob.systemdomain.exception.DomainException;
 
-
-public class TicketExhaustedException extends DomainException {
+public class TicketExhaustedException extends TicketException {
     public static final TicketExhaustedException EXCEPTION = new TicketExhaustedException();
     
     private TicketExhaustedException() {

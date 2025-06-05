@@ -61,7 +61,11 @@ public enum ErrorCode {
 
     //당첨자 관련 에러
     WINNER_NOT_FOUND(404, "W001", "Winner not found"),
-    ALREADY_WINNER_EXISTS(404, "W002", "Winner already exists");
+    ALREADY_WINNER_EXISTS(404, "W002", "Winner already exists"),
+    WINNER_ALREADY_PROCESSED(400, "W003", "Winner already processed"),
+    
+    //티켓 관련 에러 (추가)
+    EXPIRED_TICKET(400, "T007", "Ticket has expired");
 
 
     private final int status;

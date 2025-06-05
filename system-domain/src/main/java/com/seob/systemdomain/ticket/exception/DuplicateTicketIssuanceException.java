@@ -1,10 +1,8 @@
 package com.seob.systemdomain.ticket.exception;
 
 import com.seob.systemcore.error.ErrorCode;
-import com.seob.systemdomain.exception.DomainException;
 
-
-public class DuplicateTicketIssuanceException extends DomainException {
+public class DuplicateTicketIssuanceException extends TicketException {
     public static final DuplicateTicketIssuanceException EXCEPTION = 
             new DuplicateTicketIssuanceException();
     

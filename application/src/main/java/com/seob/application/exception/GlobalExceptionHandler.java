@@ -17,13 +17,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex) {
         ErrorCode errorCode = ex.getErrorCode();
-        log.error("Business exception occurred: {}", ex.getMessage());
+        log.error("비즈니스 예외 발생: {}", ex.getMessage());
         return new ResponseEntity<>(ErrorResponse.of(errorCode), HttpStatus.valueOf(errorCode.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        log.error("Validation exception occurred: {}", ex.getMessage());
+        log.error("검증 예외 발생: {}", ex.getMessage());
         ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, ex.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

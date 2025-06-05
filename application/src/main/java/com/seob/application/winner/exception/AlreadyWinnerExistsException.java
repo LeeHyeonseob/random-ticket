@@ -1,12 +1,3 @@
-package com.seob.application.winner.exception;
-
-import com.seob.application.exception.ServiceException;
-import com.seob.systemcore.error.ErrorCode;
-
-public class AlreadyWinnerExistsException extends ServiceException {
-    public static ServiceException EXCEPTION = new AlreadyWinnerExistsException();
-
-    private AlreadyWinnerExistsException() {
-        super(ErrorCode.ALREADY_WINNER_EXISTS);
-    }
-}
+// 이 파일은 삭제됩니다.
+// AlreadyWinnerExistsException은 system-domain 모듈에서 관리됩니다.
+// 비즈니스 규칙 위반이므로 domain 계층에서 처리해야 합니다.
