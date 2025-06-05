@@ -24,6 +24,6 @@ public class WinnerScheduler {
     @Scheduled(cron = "0 0 6 * * *")
     public void retry(){
         int failedCount = winnerFacadeService.retryFailedRewards();
-        log.info("failedCount:{}", failedCount);
+        log.info("보상 재전송 실패 횟수:{}", failedCount);
     }
 }

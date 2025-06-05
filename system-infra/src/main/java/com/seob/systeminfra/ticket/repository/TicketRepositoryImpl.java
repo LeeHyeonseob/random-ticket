@@ -37,7 +37,6 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public Optional<TicketDomain> findById(TicketId id) {
-        log.info("findById {}", id.getValue());
         return ticketJpaRepository.findById(id.getValue()).map(this::toDomain);
     }
 

@@ -56,19 +56,19 @@ public class RedisTicketService implements TicketService {
                 // 발급 완료 처리 - 저장소 작업
                 completeIssuance(userId);
                 
-                log.info("Successfully issued ticket for user: {} and event: {}", 
+                log.info("사용자 티켓 발급 성공 - 사용자: {}, 이벤트: {}", 
                          userId.getValue(), eventId);
                 
                 return ticket;
             } catch (Exception e) {
                 // 실패 시 롤백
                 cancelIssuance(userId);
-                log.error("Failed to publish ticket event for user: {}", userId.getValue(), e);
+                log.error("사용자 티켓 이벤트 발행 실패: {}", userId.getValue(), e);
                 throw TicketPublishException.EXCEPTION;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Ticket issuance interrupted for user: {}", userId.getValue(), e);
+            log.error("사용자 티켓 발급 중단됨: {}", userId.getValue(), e);
             throw TicketProcessException.EXCEPTION;
         } finally {
             releaseLock(lock);
@@ -105,7 +105,7 @@ public class RedisTicketService implements TicketService {
     private void acquireLock(RLock lock) throws InterruptedException {
         boolean isLocked = lock.tryLock(lockWaitTime, lockLeaseTime, TimeUnit.SECONDS);
         if (!isLocked) {
-            log.warn("Failed to acquire lock for ticket issuance. System might be overloaded.");
+            log.warn("티켓 발급용 락 획득 실패. 시스템이 과부하 상태일 수 있습니다.");
             throw com.seob.systeminfra.ticket.exception.TicketServiceOverloadedException.EXCEPTION;
         }
     }

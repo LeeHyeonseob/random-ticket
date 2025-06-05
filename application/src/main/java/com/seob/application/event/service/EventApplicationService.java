@@ -31,7 +31,7 @@ public class EventApplicationService {
     // 이벤트 생성 요청 처리
     @Transactional
     public EventResponseDto createEvent(EventCreateRequestDto requestDto) {
-        log.info("Creating new event: {}", requestDto.getName());
+        log.info("Event 생성: {}", requestDto.getName());
         
         // 도메인 명령 서비스에 이벤트 생성 위임
         EventDomain savedEvent = eventCommandService.createEvent(
@@ -40,14 +40,14 @@ public class EventApplicationService {
             requestDto.getEventDate()
         );
         
-        log.info("Event created with ID: {}", savedEvent.getId());
+        log.info("생성된 Event ID: {}", savedEvent.getId());
         return EventResponseDto.from(savedEvent);
     }
     
     // 상태 변경
     @Transactional
     public EventResponseDto updateEventStatus(Long eventId, EventStatusUpdateRequestDto requestDto) {
-        log.info("Updating event status. Event ID: {}, New status: {}", eventId, requestDto.getStatus());
+        log.info("이벤트 상태 변경. Event ID: {}, 변경된 상태: {}", eventId, requestDto.getStatus());
         
         // 이벤트 존재 여부 확인
         eventValidationService.validateEventExists(eventId);
@@ -56,14 +56,14 @@ public class EventApplicationService {
         String statusUpperCase = requestDto.getStatus().toUpperCase();
         EventDomain updatedEvent = eventCommandService.changeStatus(eventId, statusUpperCase);
         
-        log.info("Event status updated to: {}", updatedEvent.getStatus());
+        log.info("Event 상태 변경 완료 : {}", updatedEvent.getStatus());
         return EventResponseDto.from(updatedEvent);
     }
     
     // 페이징된 이벤트 목록 조회
     @Transactional(readOnly = true)
     public Page<EventResponseDto> getAllEvents(String status, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
-        log.info("Retrieving events with filters - status: {}, fromDate: {}, toDate: {}", status, fromDate, toDate);
+        log.info("Event 목록 조회 : {}, fromDate: {}, toDate: {}", status, fromDate, toDate);
         
         // 도메인 조회 서비스에 필터링된 조회 위임
         Page<EventDomain> eventPage = eventQueryService.findAllWithFilters(status, fromDate, toDate, pageable);
@@ -73,7 +73,7 @@ public class EventApplicationService {
             .map(EventResponseDto::from )
             .collect(Collectors.toList());
         
-        log.info("Retrieved {} events (page {} of {}, total: {})",
+        log.info(" {}개 event (page {} of {}, total: {})",
                 content.size(), pageable.getPageNumber() + 1, 
                 eventPage.getTotalPages(), eventPage.getTotalElements());
         
@@ -83,7 +83,7 @@ public class EventApplicationService {
     // 이벤트 조회
     @Transactional(readOnly = true)
     public EventResponseDto getEventById(Long eventId) {
-        log.info("Retrieving event details. Event ID: {}", eventId);
+        log.info("관리자 이벤트 조회 Event ID: {}", eventId);
         
         // 이벤트 존재 여부 검증
         eventValidationService.validateEventExists(eventId);
@@ -97,7 +97,7 @@ public class EventApplicationService {
     // 사용자 조회
     @Transactional(readOnly = true)
     public EventDisplayInfo getEventDisplayInfo(Long eventId) {
-        log.info("Retrieving event display info. Event ID: {}", eventId);
+        log.info("사용자 이벤트 조회 Event ID: {}", eventId);
         
         // 이벤트 존재 여부 검증
         eventValidationService.validateEventExists(eventId);
