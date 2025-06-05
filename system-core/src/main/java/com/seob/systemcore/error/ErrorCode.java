@@ -16,6 +16,7 @@ public enum ErrorCode {
     INVALID_PASSWORD_FORMAT(400, "U003", "Invalid password format"),
     PASSWORD_MISMATCH(400, "U004", "Password does not match"),
     USER_NOT_ACTIVE(400, "U005", "User not active"),
+    USER_NOT_ADMIN(403, "U006", "User is not admin"),
 
     //인증 에러
     INVALID_CODE(400, "A001", "Invalid code"),
