@@ -1,6 +1,7 @@
 package com.seob.systemdomain.event.domain;
 
-import com.seob.systemdomain.event.exception.EventNotFoundException;
+import com.seob.systemdomain.event.exception.EventNotOpenedException;
+import com.seob.systemdomain.event.exception.InvalidEventStatusException;
 import com.seob.systemdomain.event.vo.EventStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,33 +45,52 @@ public class EventDomain {
     public boolean canApply(){
         return status == EventStatus.OPEN;
     }
+    
+
+    public void validateCanApply() {
+        if (!canApply()) {
+            throw EventNotOpenedException.EXCEPTION;
+        }
+    }
+
+    public void validateStatusChange(EventStatus newStatus) {
+        if (this.status == newStatus) {
+            return;
+        }
+
+        if (this.status == EventStatus.CLOSED) {
+            throw InvalidEventStatusException.EXCEPTION;
+        }
+    }
 
     //이벤트 오픈 상태로 변경
     public void openEvent(){
+        validateStatusChange(EventStatus.OPEN);
         status = EventStatus.OPEN;
     }
 
     // 이벤트 마감 상태로 변경
     public void closeEvent(){
+        validateStatusChange(EventStatus.CLOSED);
         status = EventStatus.CLOSED;
     }
     
     // 이벤트 상태 변경
     public void changeStatus(EventStatus newStatus) {
+        validateStatusChange(newStatus);
+        
         switch (newStatus) {
             case OPEN:
-                openEvent();
+                this.status = EventStatus.OPEN;
                 break;
             case CLOSED:
-                closeEvent();
+                this.status = EventStatus.CLOSED;
                 break;
             case SCHEDULED:
-                // SCHEDULED 상태로 변경
                 this.status = EventStatus.SCHEDULED;
                 break;
             default:
-
-                break;
+                throw InvalidEventStatusException.EXCEPTION;
         }
     }
     
@@ -78,4 +98,6 @@ public class EventDomain {
     public boolean shouldBeClosed(LocalDate currentDate) {
         return eventDate.isBefore(currentDate) && status != EventStatus.CLOSED;
     }
+    
+
 }

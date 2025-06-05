@@ -1,6 +1,8 @@
 package com.seob.systemdomain.user.domain;
 
 import com.seob.systemdomain.user.domain.vo.*;
+import com.seob.systemdomain.user.exception.UserNotActiveException;
+import com.seob.systemdomain.user.exception.UserNotAdminException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -79,6 +81,14 @@ public class UserDomain {
     public void activate(){
         this.active = true;
     }
+
+    //활성화 검사
+    public void validateActive() {
+        if (!this.active) {
+            throw UserNotActiveException.EXCEPTION;
+        }
+    }
+
 
 
 

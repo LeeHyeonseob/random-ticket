@@ -2,6 +2,7 @@ package com.seob.systemdomain.ticket.domain;
 
 import com.seob.systemdomain.ticket.domain.vo.TicketId;
 import com.seob.systemdomain.ticket.exception.AlreadyUsedTicketException;
+import com.seob.systemdomain.ticket.exception.ExpiredTicketException;
 import com.seob.systemdomain.user.domain.vo.UserId;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -75,14 +76,18 @@ public class TicketDomain {
                  isUsed, false);
     }
 
-    public void use(){
+    public void validateCanUse(){
         if(Boolean.TRUE.equals(isUsed)){
             throw AlreadyUsedTicketException.EXCEPTION;
         }
         if(Boolean.TRUE.equals(isExpired) || 
            (expiryDate != null && LocalDateTime.now().isAfter(expiryDate))) {
-            throw new IllegalStateException("만료된 티켓은 사용할 수 없습니다.");
+            throw ExpiredTicketException.EXCEPTION;
         }
+    }
+
+    public void use(){
+        validateCanUse();
         isUsed = true;
         usedAt = LocalDateTime.now();
     }
