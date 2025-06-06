@@ -2,6 +2,7 @@ package com.seob.systemdomain.user.domain;
 
 import com.seob.systemdomain.user.domain.vo.UserRole;
 import com.seob.systemdomain.user.exception.PasswordMismatchException;
+import com.seob.systemdomain.user.exception.UserNotActiveException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -137,4 +138,57 @@ class UserDomainTest {
 
 
     }
+
+    @Test
+    @DisplayName("활성화 상태 검증 성공")
+    void validateActive_Success(){
+        //given
+        String email = "hyeonseob22@gmail.com";
+        String rawPassword = "Password123!";
+        String nickname = "nickname";
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
+        userDomain.activate();
+
+        //when && then
+        assertDoesNotThrow(userDomain::validateActive);
+
+
+    }
+
+    @Test
+    @DisplayName("활성화 상태 검증 실패")
+    void validateActive_Failure(){
+        //given
+        String email = "hyeonseob22@gmail.com";
+        String rawPassword = "Password123!";
+        String nickname = "nickname";
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
+
+
+        //when && then
+        assertThrows(UserNotActiveException.class, () -> userDomain.validateActive());
+    }
+
+    @Test
+    @DisplayName("이메일 변경")
+    void changeEmail(){
+        //given
+        String email = "hyeonseob22@gmail.com";
+        String rawPassword = "Password123!";
+        String nickname = "nickname";
+        given(mockPasswordHasher.encode(rawPassword)).willReturn("encoded" + rawPassword);
+        UserDomain userDomain = UserDomain.create(email, nickname, rawPassword, mockPasswordHasher);
+
+        //when
+        userDomain.changeEmail(email);
+
+        //when && then
+        assertThat(userDomain.getEmail().getValue()).isEqualTo(email);
+    }
+
+
+
+
 }
