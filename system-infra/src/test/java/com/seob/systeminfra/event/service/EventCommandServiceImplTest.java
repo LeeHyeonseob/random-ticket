@@ -2,8 +2,9 @@ package com.seob.systeminfra.event.service;
 
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
-import com.seob.systeminfra.event.exception.EventNotFoundException;
-import com.seob.systeminfra.event.exception.InvalidEventStatusException;
+import com.seob.systemdomain.event.vo.EventStatus;
+import com.seob.systeminfra.event.exception.EventDataAccessException;
+import com.seob.systeminfra.exception.EventNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,7 +49,42 @@ class EventCommandServiceImplTest {
         EventDomain result = eventCommandService.createEvent(name, description, eventDate);
         
         // then
+        assertThat(result).isNotNull();
         assertThat(result).isEqualTo(mockEventDomain);
+        verify(eventRepository).save(any(EventDomain.class));
+    }
+    
+    @Test
+    @DisplayName("Event 생성 시 null 날짜면 실패")
+    void createEvent_NullDate_ThrowsException() {
+        // given
+        String name = "테스트 Event";
+        String description = "Event 설명";
+        LocalDate nullDate = null;
+        
+        // when & then
+        assertThrows(IllegalArgumentException.class, 
+                   () -> eventCommandService.createEvent(name, description, nullDate));
+        
+        verify(eventRepository, never()).save(any());
+    }
+    
+    @Test
+    @DisplayName("Event 생성 시 오늘 날짜면 성공")
+    void createEvent_TodayDate_Success() {
+        // given
+        String name = "테스트 Event";
+        String description = "Event 설명";
+        LocalDate today = LocalDate.now();
+        
+        EventDomain mockEventDomain = mock(EventDomain.class);
+        given(eventRepository.save(any(EventDomain.class))).willReturn(mockEventDomain);
+        
+        // when
+        EventDomain result = eventCommandService.createEvent(name, description, today);
+        
+        // then
+        assertThat(result).isNotNull();
         verify(eventRepository).save(any(EventDomain.class));
     }
     
@@ -74,7 +111,7 @@ class EventCommandServiceImplTest {
         String eventStatus = "OPEN";
         
         EventDomain mockEventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
         given(eventRepository.save(mockEventDomain)).willReturn(mockEventDomain);
         
         // when
@@ -82,7 +119,7 @@ class EventCommandServiceImplTest {
         
         // then
         assertThat(result).isEqualTo(mockEventDomain);
-        verify(mockEventDomain).openEvent();
+        verify(mockEventDomain).changeStatus(EventStatus.OPEN);
         verify(eventRepository).save(mockEventDomain);
     }
 
@@ -94,7 +131,7 @@ class EventCommandServiceImplTest {
         String eventStatus = "CLOSED";
         
         EventDomain mockEventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
         given(eventRepository.save(mockEventDomain)).willReturn(mockEventDomain);
         
         // when
@@ -102,7 +139,27 @@ class EventCommandServiceImplTest {
         
         // then
         assertThat(result).isEqualTo(mockEventDomain);
-        verify(mockEventDomain).closeEvent();
+        verify(mockEventDomain).changeStatus(EventStatus.CLOSED);
+        verify(eventRepository).save(mockEventDomain);
+    }
+
+    @Test
+    @DisplayName("Event 상태를 SCHEDULED로 변경 성공")
+    void changeStatus_ToScheduled_Success() {
+        // given
+        Long eventId = 1L;
+        String eventStatus = "SCHEDULED";
+        
+        EventDomain mockEventDomain = mock(EventDomain.class);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
+        given(eventRepository.save(mockEventDomain)).willReturn(mockEventDomain);
+        
+        // when
+        EventDomain result = eventCommandService.changeStatus(eventId, eventStatus);
+        
+        // then
+        assertThat(result).isEqualTo(mockEventDomain);
+        verify(mockEventDomain).changeStatus(EventStatus.SCHEDULED);
         verify(eventRepository).save(mockEventDomain);
     }
 
@@ -114,14 +171,13 @@ class EventCommandServiceImplTest {
         String invalidStatus = "INVALID_STATUS";
         
         EventDomain mockEventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
         
         // when & then
-        assertThrows(InvalidEventStatusException.class, 
+        assertThrows(IllegalArgumentException.class,
                    () -> eventCommandService.changeStatus(eventId, invalidStatus));
         
-        verify(mockEventDomain, never()).openEvent();
-        verify(mockEventDomain, never()).closeEvent();
+        verify(mockEventDomain, never()).changeStatus(any());
         verify(eventRepository, never()).save(mockEventDomain);
     }
     
@@ -132,10 +188,10 @@ class EventCommandServiceImplTest {
         Long eventId = 1L;
         String eventStatus = "OPEN";
         
-        given(eventRepository.findById(eventId)).willReturn(null);
+        given(eventRepository.findById(eventId)).willReturn(Optional.empty());
         
         // when & then
-        assertThrows(EventNotFoundException.class, 
+        assertThrows(EventNotFoundException.class,
                    () -> eventCommandService.changeStatus(eventId, eventStatus));
         
         verify(eventRepository, never()).save(any());
@@ -149,15 +205,10 @@ class EventCommandServiceImplTest {
         
         EventDomain event1 = mock(EventDomain.class);
         EventDomain event2 = mock(EventDomain.class);
-        when(event1.getId()).thenReturn(1L);
-        when(event2.getId()).thenReturn(2L);
         
         List<EventDomain> yesterdayEvents = Arrays.asList(event1, event2);
         
         given(eventRepository.findByEventDateAndStatusNotClosed(yesterday)).willReturn(yesterdayEvents);
-        
-        when(eventRepository.findById(1L)).thenReturn(event1);
-        when(eventRepository.findById(2L)).thenReturn(event2);
         when(eventRepository.save(any(EventDomain.class))).thenAnswer(i -> i.getArgument(0));
         
         // when
@@ -165,8 +216,8 @@ class EventCommandServiceImplTest {
         
         // then
         verify(eventRepository).findByEventDateAndStatusNotClosed(yesterday);
-        verify(event1).closeEvent();
-        verify(event2).closeEvent();
+        verify(event1).changeStatus(EventStatus.CLOSED);
+        verify(event2).changeStatus(EventStatus.CLOSED);
         verify(eventRepository, times(2)).save(any(EventDomain.class));
     }
 
@@ -179,7 +230,7 @@ class EventCommandServiceImplTest {
         given(eventRepository.findByEventDateAndStatusNotClosed(yesterday)).willReturn(List.of());
         
         // when & then
-        assertThrows(EventNotFoundException.class, () -> eventCommandService.closeYesterdayEvents());
+        assertThrows(EventDataAccessException.class, () -> eventCommandService.closeYesterdayEvents());
         
         verify(eventRepository).findByEventDateAndStatusNotClosed(yesterday);
         verify(eventRepository, never()).save(any());

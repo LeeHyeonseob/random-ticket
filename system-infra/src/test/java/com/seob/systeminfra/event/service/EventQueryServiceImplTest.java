@@ -3,6 +3,7 @@ package com.seob.systeminfra.event.service;
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.dto.EventDisplayInfo;
 import com.seob.systemdomain.event.repository.EventRepository;
+import com.seob.systeminfra.exception.EventNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,14 +18,16 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class EventQueryServiceImplTest {
+    class EventQueryServiceImplTest {
 
     @Mock
     private EventRepository eventRepository;
@@ -38,14 +41,29 @@ class EventQueryServiceImplTest {
         // given
         Long eventId = 1L;
         EventDomain mockEventDomain = mock(EventDomain.class);
-        
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
-        
+
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
+
         // when
         EventDomain result = eventQueryService.findById(eventId);
-        
+
         // then
         assertThat(result).isEqualTo(mockEventDomain);
+        verify(eventRepository).findById(eventId);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 Event ID로 조회 시 예외 발생")
+    void findById_EventNotFound_ThrowsException() {
+        // given
+        Long eventId = 1L;
+
+        given(eventRepository.findById(eventId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(EventNotFoundException.class,
+                   () -> eventQueryService.findById(eventId));
+
         verify(eventRepository).findById(eventId);
     }
 

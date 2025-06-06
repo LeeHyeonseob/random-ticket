@@ -2,10 +2,8 @@ package com.seob.systeminfra.event.service;
 
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
-import com.seob.systemdomain.event.service.EventValidationService;
 import com.seob.systemdomain.event.vo.EventStatus;
-import com.seob.systeminfra.event.exception.EventNotFoundException;
-import com.seob.systeminfra.event.exception.InvalidEventStatusException;
+import com.seob.systeminfra.exception.EventNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,7 +36,7 @@ class EventValidationServiceImplTest {
         Long eventId = 1L;
         EventDomain mockEventDomain = mock(EventDomain.class);
         
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
         
         // when & then
         assertDoesNotThrow(() -> eventValidationService.validateEventExists(eventId));
@@ -49,7 +48,7 @@ class EventValidationServiceImplTest {
     void validateEventExists_NotFound_ThrowsException() {
         // given
         Long eventId = 1L;
-        given(eventRepository.findById(eventId)).willReturn(null);
+        given(eventRepository.findById(eventId)).willReturn(Optional.empty());
         
         // when & then
         assertThrows(EventNotFoundException.class, () -> eventValidationService.validateEventExists(eventId));
@@ -71,7 +70,7 @@ class EventValidationServiceImplTest {
         EventStatus expectedStatus = EventStatus.OPEN;
         EventDomain mockEventDomain = mock(EventDomain.class);
         
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
         given(eventRepository.findStatusById(eventId)).willReturn(expectedStatus);
         
         // when & then
@@ -88,11 +87,11 @@ class EventValidationServiceImplTest {
         EventStatus actualStatus = EventStatus.CLOSED;
         EventDomain mockEventDomain = mock(EventDomain.class);
         
-        given(eventRepository.findById(eventId)).willReturn(mockEventDomain);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(mockEventDomain));
         given(eventRepository.findStatusById(eventId)).willReturn(actualStatus);
         
         // when & then
-        assertThrows(InvalidEventStatusException.class, 
+        assertThrows(IllegalArgumentException.class, 
                      () -> eventValidationService.validateEventStatus(eventId, expectedStatus));
         verify(eventRepository).findStatusById(eventId);
     }

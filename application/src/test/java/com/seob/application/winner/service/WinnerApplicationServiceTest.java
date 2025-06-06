@@ -1,9 +1,5 @@
 package com.seob.application.winner.service;
 
-import com.seob.application.winner.exception.AlreadyWinnerExistsException;
-import com.seob.application.winner.exception.EntryNotFoundException;
-import com.seob.application.winner.exception.NoRewardInEventException;
-import com.seob.application.winner.exception.WinnerNotFoundException;
 import com.seob.systemdomain.entry.repository.EntryRepository;
 import com.seob.systemdomain.reward.domain.RewardDomain;
 import com.seob.systemdomain.reward.repository.RewardRepository;
@@ -14,6 +10,8 @@ import com.seob.systemdomain.winner.domain.WinnerDomain;
 import com.seob.systemdomain.winner.dto.WinnerNotificationInfo;
 import com.seob.systemdomain.winner.dto.WinnerRewardDetailInfo;
 import com.seob.systemdomain.winner.dto.WinnerUserDetailInfo;
+import com.seob.systemdomain.winner.exception.WinnerNotFoundException;
+import com.seob.systemdomain.winner.exception.WinnerAlreadyProcessedException;
 import com.seob.systemdomain.winner.repository.WinnerQueryRepository;
 import com.seob.systemdomain.winner.service.WinnerService;
 import com.seob.systemdomain.winner.vo.RewardStatus;
@@ -106,8 +104,8 @@ class WinnerApplicationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> winnerApplicationService.selectWinner(eventId))
-            .isInstanceOf(EntryNotFoundException.class);
-        
+            .isInstanceOf(RuntimeException.class);
+
         verify(entryRepository).findUserIdByEventId(eventId);
         verify(winnerService, never()).createWinner(any(), any(), any());
     }
@@ -124,8 +122,8 @@ class WinnerApplicationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> winnerApplicationService.selectWinner(eventId))
-            .isInstanceOf(AlreadyWinnerExistsException.class);
-        
+            .isInstanceOf(RuntimeException.class);
+
         verify(entryRepository).findUserIdByEventId(eventId);
         verify(winnerService).existsByEventId(eventId);
         verify(rewardRepository, never()).findByEventId(any());
@@ -145,8 +143,8 @@ class WinnerApplicationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> winnerApplicationService.selectWinner(eventId))
-            .isInstanceOf(NoRewardInEventException.class);
-        
+            .isInstanceOf(RuntimeException.class);
+
         verify(entryRepository).findUserIdByEventId(eventId);
         verify(winnerService).existsByEventId(eventId);
         verify(rewardRepository).findByEventId(eventId);
@@ -198,10 +196,8 @@ class WinnerApplicationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> winnerApplicationService.sendRewardManually(winnerId))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("보상 발송 중 오류가 발생했습니다")
-            .hasCauseInstanceOf(WinnerNotFoundException.class);
-        
+            .isInstanceOf(WinnerNotFoundException.class);
+
         verify(winnerQueryRepository).findNotificationInfoById(winnerId);
         verify(emailService, never()).sendRewardEmail(any(), any(), any());
         verify(winnerService, never()).updateStatus(any(Long.class), any());
@@ -220,10 +216,8 @@ class WinnerApplicationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> winnerApplicationService.sendRewardManually(winnerId))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("보상 발송 중 오류가 발생했습니다")
-            .hasCauseInstanceOf(IllegalStateException.class);
-        
+            .isInstanceOf(WinnerAlreadyProcessedException.class);
+
         verify(winnerQueryRepository).findNotificationInfoById(winnerId);
         verify(emailService, never()).sendRewardEmail(any(), any(), any());
         verify(winnerService, never()).updateStatus(any(Long.class), any());

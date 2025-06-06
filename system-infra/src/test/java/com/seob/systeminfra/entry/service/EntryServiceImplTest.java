@@ -8,8 +8,7 @@ import com.seob.systemdomain.ticket.domain.TicketDomain;
 import com.seob.systemdomain.ticket.domain.vo.TicketId;
 import com.seob.systemdomain.ticket.repository.TicketRepository;
 import com.seob.systemdomain.user.domain.vo.UserId;
-import com.seob.systeminfra.entry.exception.EventNotOpendExcpetion;
-import com.seob.systeminfra.entry.exception.TicketNotFoundException;
+import com.seob.systeminfra.exception.TicketNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +42,7 @@ class EntryServiceImplTest {
 
     @Test
     @DisplayName("티켓 ID 없이 이벤트 응모 성공")
-    void applyWithoutTicketId_Success() {
+    void apply_Success() {
         // given
         String userIdStr = "user123";
         Long eventId = 1L;
@@ -52,8 +51,7 @@ class EntryServiceImplTest {
         
         // 이벤트 모킹
         EventDomain eventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(eventDomain);
-        given(eventDomain.canApply()).willReturn(true);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(eventDomain));
         
         // 티켓 모킹
         TicketDomain ticketDomain = mock(TicketDomain.class);
@@ -62,36 +60,33 @@ class EntryServiceImplTest {
         given(ticketDomain.getId()).willReturn(ticketId);
         given(ticketRepository.findByUserIdAndEventIdAndNotUsed(eq(userId), eq(eventId)))
                 .willReturn(Optional.of(ticketDomain));
-        doNothing().when(ticketDomain).use();
         
         // 응모 결과 모킹
         EntryDomain createdEntry = mock(EntryDomain.class);
         given(entryRepository.save(any(EntryDomain.class))).willReturn(createdEntry);
         
         // when
-        EntryDomain result = entryService.applyWithoutTicketId(userIdStr, eventId);
+        EntryDomain result = entryService.apply(userIdStr, eventId);
         
         // then
         assertThat(result).isEqualTo(createdEntry);
-        verify(ticketDomain).use();
         verify(ticketRepository).save(ticketDomain);
         verify(entryRepository).save(any(EntryDomain.class));
     }
     
     @Test
-    @DisplayName("이벤트가 오픈되지 않은 경우 예외 발생")
-    void applyWithoutTicketId_EventNotOpened() {
+    @DisplayName("이벤트를 찾을 수 없는 경우 예외 발생")
+    void apply_EventNotFound() {
         // given
         String userIdStr = "user123";
         Long eventId = 1L;
         
-        // 이벤트 모킹 - 응모 불가능
-        EventDomain eventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(eventDomain);
-        given(eventDomain.canApply()).willReturn(false);
+        // 이벤트 없음
+        given(eventRepository.findById(eventId)).willReturn(Optional.empty());
         
         // when & then
-        assertThrows(EventNotOpendExcpetion.class, () -> entryService.applyWithoutTicketId(userIdStr, eventId));
+        assertThrows(com.seob.systeminfra.exception.EventNotFoundException.class, 
+                () -> entryService.apply(userIdStr, eventId));
         
         // 티켓 조회 및 사용 처리가 일어나지 않음
         verify(ticketRepository, never()).findByUserIdAndEventIdAndNotUsed(any(), any());
@@ -108,15 +103,14 @@ class EntryServiceImplTest {
         
         // 이벤트 모킹
         EventDomain eventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(eventDomain);
-        given(eventDomain.canApply()).willReturn(true);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(eventDomain));
         
         // 티켓 모킹 - 해당 이벤트용 티켓 없음
         given(ticketRepository.findByUserIdAndEventIdAndNotUsed(eq(userId), eq(eventId)))
                 .willReturn(Optional.empty());
         
         // when & then
-        assertThrows(TicketNotFoundException.class, () -> entryService.applyWithoutTicketId(userIdStr, eventId));
+        assertThrows(TicketNotFoundException.class, () -> entryService.apply(userIdStr, eventId));
         
         // 티켓 사용 처리 및 엔트리 생성이 일어나지 않음
         verify(ticketRepository, never()).save(any());
@@ -125,7 +119,7 @@ class EntryServiceImplTest {
     
     @Test
     @DisplayName("이벤트 ID가 null인 경우 NPE 발생")
-    void applyWithoutTicketId_NullEventId() {
+    void apply() {
         // given
         String userIdStr = "user123";
         Long eventId = null;
@@ -134,7 +128,7 @@ class EntryServiceImplTest {
         when(eventRepository.findById(null)).thenThrow(NullPointerException.class);
         
         // when & then
-        assertThrows(NullPointerException.class, () -> entryService.applyWithoutTicketId(userIdStr, eventId));
+        assertThrows(NullPointerException.class, () -> entryService.apply(userIdStr, eventId));
         
         // 티켓 조회 및 사용 처리가 일어나지 않음
         verify(ticketRepository, never()).findByUserIdAndEventIdAndNotUsed(any(), any());
@@ -143,7 +137,7 @@ class EntryServiceImplTest {
     
     @Test
     @DisplayName("이벤트 응모 전체 과정 통합 테스트")
-    void applyWithoutTicketId_IntegrationFlow() {
+    void apply_IntegrationFlow() {
         // given
         String userIdStr = "user123";
         Long eventId = 1L;
@@ -152,8 +146,7 @@ class EntryServiceImplTest {
         
         // 실제 객체에 가까운 모킹
         EventDomain eventDomain = mock(EventDomain.class);
-        given(eventRepository.findById(eventId)).willReturn(eventDomain);
-        given(eventDomain.canApply()).willReturn(true);
+        given(eventRepository.findById(eventId)).willReturn(Optional.of(eventDomain));
         
         // 티켓 도메인 상세 모킹
         TicketId ticketId = mock(TicketId.class);
@@ -170,16 +163,14 @@ class EntryServiceImplTest {
         given(entryRepository.save(any(EntryDomain.class))).willReturn(expectedEntry);
         
         // when
-        EntryDomain result = entryService.applyWithoutTicketId(userIdStr, eventId);
+        EntryDomain result = entryService.apply(userIdStr, eventId);
         
         // then
         assertThat(result).isEqualTo(expectedEntry);
         
         // 핵심 메소드 호출 검증
         verify(eventRepository).findById(eventId);
-        verify(eventDomain).canApply();
         verify(ticketRepository).findByUserIdAndEventIdAndNotUsed(any(UserId.class), eq(eventId));
-        verify(ticketDomain).use();
         verify(ticketRepository).save(ticketDomain);
         verify(entryRepository).save(any(EntryDomain.class));
     }
