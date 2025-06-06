@@ -6,8 +6,8 @@ import com.seob.application.entry.controller.dto.UserEntryResponse;
 import com.seob.systemdomain.entry.domain.EntryDomain;
 import com.seob.systemdomain.entry.dto.ParticipantInfo;
 import com.seob.systemdomain.entry.dto.UserEventInfo;
+import com.seob.systemdomain.entry.repository.EntryRepository;
 import com.seob.systemdomain.entry.service.EntryQueryService;
-import com.seob.systemdomain.entry.service.EntryService;
 import com.seob.systemdomain.event.domain.EventDomain;
 import com.seob.systemdomain.event.repository.EventRepository;
 import com.seob.systemdomain.ticket.domain.TicketDomain;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class EntryApplicationServiceImpl implements EntryApplicationService {
 
-    private final EntryService entryService;
+    private final EntryRepository entryRepository;
     private final EntryQueryService entryQueryService;
     private final EventRepository eventRepository;
     private final TicketRepository ticketRepository;
@@ -51,15 +51,17 @@ public class EntryApplicationServiceImpl implements EntryApplicationService {
             ticket.use();
             
             //저장
-            EntryDomain entry = entryService.apply(userId.getValue(), eventId);
+            ticketRepository.save(ticket);
+            EntryDomain entry = EntryDomain.create(userId,eventId, ticket.getId().getValue());
+            EntryDomain saveEntry = entryRepository.save(entry);
             
-            // 5. 응답 변환
+            //  응답 변환
             return new EntryResponse(
-                    entry.getId(),
-                    entry.getEventId(),
+                    saveEntry.getId(),
+                    saveEntry.getEventId(),
                     event.getName(),
-                    entry.getTicketId(),
-                    entry.getCreatedAt()
+                    saveEntry.getTicketId(),
+                    saveEntry.getCreatedAt()
             );
         } catch (EntryDataAccessException e) {
             throw e;
