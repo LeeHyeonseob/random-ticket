@@ -42,10 +42,7 @@ public class TicketDomain {
         return ticketDomain;
     }
 
-    // 이전 버전과의 호환성을 위해 eventId 없는 생성 메서드 유지
-    public static TicketDomain create(UserId userId){
-        return create(userId, null);
-    }
+
 
     public static TicketDomain of(String id, UserId userId, Long eventId, LocalDateTime createdAt, 
                                   LocalDateTime usedAt, LocalDateTime expiryDate, 
@@ -60,20 +57,6 @@ public class TicketDomain {
         ticketDomain.isUsed = isUsed;
         ticketDomain.isExpired = isExpired;
         return ticketDomain;
-    }
-
-    // 이전 버전과의 호환성을 위한 정적 팩토리 메서드 유지
-    public static TicketDomain of(String id, UserId userId, Long eventId, LocalDateTime createdAt, Boolean isUsed) {
-        return of(id, userId, eventId, createdAt, isUsed ? LocalDateTime.now() : null, 
-                 createdAt != null ? createdAt.plusDays(30) : null, 
-                 isUsed, false);
-    }
-    
-    // 이전 버전과의 호환성을 위한 정적 팩토리 메서드 유지
-    public static TicketDomain of(String id, UserId userId, LocalDateTime createdAt, Boolean isUsed) {
-        return of(id, userId, null, createdAt, isUsed ? LocalDateTime.now() : null, 
-                 createdAt != null ? createdAt.plusDays(30) : null, 
-                 isUsed, false);
     }
 
     public void validateCanUse(){
@@ -95,18 +78,10 @@ public class TicketDomain {
     public void expire() {
         this.isExpired = true;
     }
-    
-    public boolean isValid() {
-        return !Boolean.TRUE.equals(isUsed) && 
-               !Boolean.TRUE.equals(isExpired) &&
-               (expiryDate == null || LocalDateTime.now().isBefore(expiryDate));
-    }
+
 
     public boolean isUsed(){
         return Boolean.TRUE.equals(isUsed);
     }
-    
-    public boolean isForEvent(Long eventId) {
-        return this.eventId != null && this.eventId.equals(eventId);
-    }
+
 }
