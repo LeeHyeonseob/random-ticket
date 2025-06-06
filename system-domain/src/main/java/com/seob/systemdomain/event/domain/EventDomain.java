@@ -62,18 +62,6 @@ public class EventDomain {
             throw InvalidEventStatusException.EXCEPTION;
         }
     }
-
-    //이벤트 오픈 상태로 변경
-    public void openEvent(){
-        validateStatusChange(EventStatus.OPEN);
-        status = EventStatus.OPEN;
-    }
-
-    // 이벤트 마감 상태로 변경
-    public void closeEvent(){
-        validateStatusChange(EventStatus.CLOSED);
-        status = EventStatus.CLOSED;
-    }
     
     // 이벤트 상태 변경
     public void changeStatus(EventStatus newStatus) {
@@ -93,11 +81,7 @@ public class EventDomain {
                 throw InvalidEventStatusException.EXCEPTION;
         }
     }
-    
-    // 이벤트 종료 처리 필요 여부 확인
-    public boolean shouldBeClosed(LocalDate currentDate) {
-        return eventDate.isBefore(currentDate) && status != EventStatus.CLOSED;
-    }
+
     
 
 }
