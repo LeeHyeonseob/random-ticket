@@ -24,45 +24,36 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class RedisTicketService implements TicketService {
+
     private final TicketPublisher ticketPublisher;
     private final RedissonClient redissonClient;
     private final TicketIssuanceRepository issuanceRepository;
-    
+
     @Value("${app.redis.ticket.lock-key}")
     private String ticketLock;
-    
+
     @Value("${app.redis.ticket.lock-wait-time}")
     private long lockWaitTime;
-    
+
     @Value("${app.redis.ticket.lock-lease-time}")
     private long lockLeaseTime;
-    
+
     @Override
     public TicketDomain issueTicket(UserId userId, Long eventId) {
         RLock lock = redissonClient.getLock(ticketLock);
-        
+
         try {
             acquireLock(lock);
-            
-            // 저장소 의존 검증 로직 - 인프라 서비스에서 직접 처리
             validateTicketIssuance(userId);
-            
-            // 도메인 객체 생성 - eventId 포함
+
             TicketDomain ticket = TicketDomain.create(userId, eventId);
-            
+
             try {
-                // 이벤트 발행
                 ticketPublisher.publish(ticket);
-                
-                // 발급 완료 처리 - 저장소 작업
                 completeIssuance(userId);
-                
-                log.info("사용자 티켓 발급 성공 - 사용자: {}, 이벤트: {}", 
-                         userId.getValue(), eventId);
-                
+                log.info("사용자 티켓 발급 성공 - 사용자: {}, 이벤트: {}", userId.getValue(), eventId);
                 return ticket;
             } catch (Exception e) {
-                // 실패 시 롤백
                 cancelIssuance(userId);
                 log.error("사용자 티켓 이벤트 발행 실패: {}", userId.getValue(), e);
                 throw TicketPublishException.EXCEPTION;
@@ -75,34 +66,29 @@ public class RedisTicketService implements TicketService {
             releaseLock(lock);
         }
     }
-    
+
     // 티켓 발급 가능 여부 검증
     private void validateTicketIssuance(UserId userId) {
-        // 중복 발급 검증
         if (issuanceRepository.hasIssuedTicket(userId)) {
             throw DuplicateTicketIssuanceException.EXCEPTION;
         }
-        
-        // 발급 수량 검증
+
         long currentCount = issuanceRepository.incrementTicketCount();
         if (currentCount > issuanceRepository.getMaxTickets()) {
             issuanceRepository.decrementTicketCount();
             throw TicketExhaustedException.EXCEPTION;
         }
     }
-    
-    // 티켓 발급 완료 처리 - 저장소 작업
+
     private void completeIssuance(UserId userId) {
         issuanceRepository.saveIssuance(userId);
     }
-    
-    // 티켓 발급 취소 처리 - 저장소 작업
+
     private void cancelIssuance(UserId userId) {
         issuanceRepository.decrementTicketCount();
         issuanceRepository.cancelIssuance(userId);
     }
 
-    // Redis 락 획득
     private void acquireLock(RLock lock) throws InterruptedException {
         boolean isLocked = lock.tryLock(lockWaitTime, lockLeaseTime, TimeUnit.SECONDS);
         if (!isLocked) {
@@ -110,8 +96,7 @@ public class RedisTicketService implements TicketService {
             throw TicketServiceOverloadedException.EXCEPTION;
         }
     }
-    
-    // Redis 락 해제
+
     private void releaseLock(RLock lock) {
         if (lock.isHeldByCurrentThread()) {
             lock.unlock();

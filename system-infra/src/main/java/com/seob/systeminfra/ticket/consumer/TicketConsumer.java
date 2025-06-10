@@ -15,7 +15,6 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Component
 @Slf4j
 public class TicketConsumer implements StreamListener<String, MapRecord<String, String, String>> {
@@ -37,7 +36,8 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
 
     public TicketConsumer(
             TicketRepository ticketRepository,
-            StringRedisTemplate stringRedisTemplate) {
+            StringRedisTemplate stringRedisTemplate
+    ) {
         this.ticketRepository = ticketRepository;
         this.redisTemplate = stringRedisTemplate;
     }
@@ -45,24 +45,16 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
     @Override
     public void onMessage(MapRecord<String, String, String> message) {
         try {
-            // 1) 메시지 -> TicketDomain 변환
             TicketDomain ticket = convertToTicketDomain(message.getValue());
-
-            // 2) DB 저장
             ticketRepository.save(ticket);
-            // 3) 메시지 성공 처리(Ack)
             acknowledgeMessage(message);
-
         } catch (Exception e) {
             log.error("메시지 처리 오류 발생 (ID: {}): {}", message.getId(), e.getMessage());
-            // 4) 실패 시 재시도 혹은 DLQ로 이동
             try {
                 handleFailedMessage(message, e);
             } catch (Exception ex) {
                 log.error("실패 처리 중 추가 오류 발생: {}", ex.getMessage());
-                // 최악의 경우에도 메시지를 acknowledge하여 스트림에서 제거
                 acknowledgeMessage(message);
-                // DLQ로 최선의 시도를 한다
                 try {
                     Map<String, String> cleanedData = new HashMap<>(message.getValue());
                     redisTemplate.opsForStream().add(dlqStreamKey, cleanedData);
@@ -74,15 +66,12 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
     }
 
-    //  Map<String, String> 데이터를 TicketDomain으로 파싱
     private TicketDomain convertToTicketDomain(Map<String, String> ticketData) {
         try {
             String ticketIdStr = ticketData.get("ticketId");
             String userIdStr = ticketData.get("userId");
             String createdAtStr = ticketData.get("createdAt");
             String isUsedStr = ticketData.get("isUsed");
-            
-            // 새 필드 파싱
             String eventIdStr = ticketData.get("eventId");
             String usedAtStr = ticketData.get("usedAt");
             String expiryDateStr = ticketData.get("expiryDate");
@@ -91,22 +80,27 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
             UserId userId = UserId.of(userIdStr);
             LocalDateTime createdAt = LocalDateTime.parse(createdAtStr);
             boolean isUsed = Boolean.parseBoolean(isUsedStr);
-            
-            // null이 아닌 경우만 변환
-            Long eventId = eventIdStr != null && !eventIdStr.equals("null") ? Long.parseLong(eventIdStr) : null;
-            LocalDateTime usedAt = usedAtStr != null && !usedAtStr.equals("null") && !usedAtStr.isEmpty() ? LocalDateTime.parse(usedAtStr) : null;
-            LocalDateTime expiryDate = expiryDateStr != null && !expiryDateStr.equals("null") ? LocalDateTime.parse(expiryDateStr) : null;
+
+            Long eventId = eventIdStr != null && !eventIdStr.equals("null")
+                    ? Long.parseLong(eventIdStr) : null;
+
+            LocalDateTime usedAt = usedAtStr != null && !usedAtStr.equals("null") && !usedAtStr.isEmpty()
+                    ? LocalDateTime.parse(usedAtStr) : null;
+
+            LocalDateTime expiryDate = expiryDateStr != null && !expiryDateStr.equals("null")
+                    ? LocalDateTime.parse(expiryDateStr) : null;
+
             boolean isExpired = isExpiredStr != null ? Boolean.parseBoolean(isExpiredStr) : false;
 
             return TicketDomain.of(
-                ticketIdStr, 
-                userId, 
-                eventId, 
-                createdAt, 
-                usedAt, 
-                expiryDate, 
-                isUsed, 
-                isExpired
+                    ticketIdStr,
+                    userId,
+                    eventId,
+                    createdAt,
+                    usedAt,
+                    expiryDate,
+                    isUsed,
+                    isExpired
             );
         } catch (DateTimeParseException e) {
             log.error("날짜 파싱 오류: {}", e.getMessage());
@@ -117,7 +111,6 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
     }
 
-    // 메시지를 Ack하여 pending 목록에서 제거
     private void acknowledgeMessage(MapRecord<String, String, String> message) {
         try {
             redisTemplate.opsForStream().acknowledge(groupName, message);
@@ -126,9 +119,7 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
     }
 
-    // 메시지 처리 실패 시 재시도/ DLQ 이동
     private void handleFailedMessage(MapRecord<String, String, String> message, Exception e) {
-        // 재시도 횟수 확인
         String retryCountStr = message.getValue().get("retryCount");
         int retryCount = 0;
 
@@ -141,20 +132,14 @@ public class TicketConsumer implements StreamListener<String, MapRecord<String, 
         }
 
         if (retryCount < maxRetry - 1) {
-            // 데이터 정제 및 재시도
             Map<String, String> cleanData = new HashMap<>(message.getValue());
             cleanData.put("retryCount", String.valueOf(retryCount + 1));
-
-            // 스트림에 추가 (재시도)
             redisTemplate.opsForStream().add(streamKey, cleanData);
             log.warn("메시지 {} 재처리 요청 (재시도 {}번째)", message.getId(), retryCount + 1);
         } else {
-            // 최대 재시도 횟수 초과 -> DLQ로 이동
             redisTemplate.opsForStream().add(dlqStreamKey, message.getValue());
             log.error("메시지 {} 처리 실패 - DLQ로 이동 (시도 횟수 {}회)", message.getId(), retryCount + 1);
         }
-
-        // PENDING 제거
         acknowledgeMessage(message);
     }
 }
