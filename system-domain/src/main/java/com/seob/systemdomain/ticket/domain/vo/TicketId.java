@@ -1,6 +1,7 @@
 package com.seob.systemdomain.ticket.domain.vo;
 
 import com.seob.systemdomain.user.domain.vo.UserId;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Value
+@EqualsAndHashCode
 public class TicketId implements Serializable {
 
     private String value;
